@@ -1,0 +1,9 @@
+services:
+  lms200:
+    environment:
+      LMS_TRANSPORT: replay
+      LMS_REPLAY_PATH: /data/recordings/${LMS_REPLAY_FILE:-scan.bin}
+      LMS_REPLAY_SPEED: ${LMS_REPLAY_SPEED:-1}
+      LMS_AUTOSTART: "true"
+    volumes:
+      - "./recordings:/data/recordings:ro"

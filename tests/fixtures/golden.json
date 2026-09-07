@@ -1,0 +1,18 @@
+{
+  "provenance": "Complete bytes copied from SICK LMS communication setup C.2/C.4/C.5/C.6/C.7/C.9 pp9-14 and Telegram Listing Tables 7-55 p65, 7-109 p90. CRC values are official, not computed to create expectations.",
+  "status": "02 00 01 00 31 15 12",
+  "type": "02 00 01 00 3a 1e 12",
+  "read_config": "02 00 01 00 74 50 12",
+  "installation": "02 00 0a 00 20 00 53 49 43 4b 5f 4c 4d 53 be c5",
+  "baud9600": "02 00 02 00 20 42 52 08",
+  "baud19200": "02 00 02 00 20 41 51 08",
+  "baud38400": "02 00 02 00 20 40 50 08",
+  "baud500000": "02 00 02 00 20 48 58 08",
+  "variant180_1": "02 00 05 00 3b b4 00 64 00 97 49",
+  "variant180_half": "02 00 05 00 3b b4 00 32 00 3b 1f",
+  "variant100_quarter": "02 00 05 00 3b 64 00 19 00 e7 72",
+  "start": "02 00 02 00 20 24 34 08",
+  "stop": "02 00 02 00 20 25 35 08",
+  "mode_response_81": "02 81 03 00 a0 00 10 36 1a",
+  "mode_response_80": "02 80 03 00 a0 00 10 16 0a"
+}

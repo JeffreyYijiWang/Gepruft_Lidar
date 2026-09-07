@@ -1,0 +1,25 @@
+services:
+  lms200:
+    build:
+      context: .
+      target: runtime
+    image: gepruft-lms200:local
+    init: true
+    ports:
+      - "127.0.0.1:${LMS_WEB_PORT:-8000}:8000"
+    environment:
+      LMS_TRANSPORT: simulator
+      LMS_AUTOSTART: "true"
+      LMS_READ_ONLY: "true"
+      LMS_ANGLE: ${LMS_ANGLE:-180}
+      LMS_RESOLUTION: ${LMS_RESOLUTION:-1.0}
+      LMS_UNIT: ${LMS_UNIT:-mm}
+    volumes:
+      - recordings:/data/recordings
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    read_only: true
+    tmpfs: [/tmp]
+    stop_grace_period: 20s
+volumes:
+  recordings:

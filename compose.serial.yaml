@@ -1,0 +1,13 @@
+services:
+  lms200:
+    environment:
+      LMS_TRANSPORT: serial
+      LMS_SERIAL_PORT: /dev/ttyUSB0
+      LMS_AUTOSTART: "false"
+      LMS_READ_ONLY: "true"
+      LMS_SERIAL_STANDARD: ${LMS_SERIAL_STANDARD:-rs232}
+      LMS_TARGET_BAUD: ${LMS_TARGET_BAUD:-38400}
+    devices:
+      - "${LMS_SERIAL_DEVICE:-/dev/ttyUSB0}:/dev/ttyUSB0"
+    group_add:
+      - "${LMS_SERIAL_GID:-20}"

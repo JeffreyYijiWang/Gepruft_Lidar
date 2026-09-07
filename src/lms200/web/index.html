@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LMS200 · Scan station</title><link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <aside class="rail"><a href="/" class="mark" aria-label="Scan station home">L<span>2</span></a><span class="rail-label">SCAN STATION</span><span class="rail-bottom">LOCAL / 01</span></aside>
+  <main>
+    <header><div><p class="eyebrow">SICK LMS200–30106 <span class="divider">/</span> 2D ACQUISITION</p><h1>Scan station<span class="dot">.</span></h1><p class="sub">A live view of the space around your scanner.</p></div><div class="connection"><span id="state" class="badge">Connecting to service</span><span id="socket-state">Opening live channel</span></div></header>
+    <div id="error" role="alert" hidden></div>
+    <section class="toolbar" aria-label="Scanner controls"><div class="buttons"><button id="start" class="primary">▶ Start scan</button><button id="stop">■ Stop</button><button id="reconnect">↻ Reconnect</button><button id="probe">Probe status</button></div><div class="buttons"><button id="record"><span class="record-dot"></span> Record</button><select id="format" aria-label="Download format"><option value="json">JSON scan</option><option value="csv">CSV points</option><option value="pcd">PCD cloud</option></select><button id="download">↓ Download</button></div></section>
+    <section class="metrics" aria-label="Acquisition metrics">
+      <article><span>COMPLETE SCANS RECEIVED</span><strong id="hz">0.00 <small>Hz</small></strong><p>Measured over the last 3 seconds</p></article>
+      <article><span>POINTS PER SCAN</span><strong id="points">—</strong><p id="geometry">Awaiting verified configuration</p></article>
+      <article><span>SERIAL BAUD RATE</span><strong id="baud">—</strong><p id="throughput">8 data bits · no parity · 1 stop bit</p></article>
+      <article><span>TELEGRAM INTEGRITY</span><strong id="crc">0 <small>CRC errors</small></strong><p id="errors">0 timeouts · 0 malformed · 0 missed</p></article>
+    </section>
+    <div class="workspace"><section class="plot-panel"><div class="panel-heading"><div><p class="eyebrow">LIVE SCAN</p><h2>Plan view</h2></div><div class="plot-meta"><span id="sequence">SCAN —</span><span class="live-dot"></span><span id="source">SIMULATOR</span></div></div><div class="canvas-wrap"><canvas id="scan" aria-label="2D point cloud, viewed from above. Zero degrees is right; 90 degrees is forward."></canvas><div class="plot-legend"><span></span> Valid return <b>×</b> Scanner origin</div></div><div class="plot-footer"><label for="range">View radius <output id="range-value">8 m</output></label><input id="range" type="range" min="2" max="80" value="8" step="1"><span>TOP VIEW · x RIGHT / y FORWARD</span></div></section>
+    <aside class="details"><section class="card"><p class="eyebrow">DEVICE & CONNECTION</p><dl><dt>Source</dt><dd id="transport">—</dd><dt>Endpoint</dt><dd id="endpoint">—</dd><dt>Device ID</dt><dd id="model">Awaiting scanner</dd><dt>Firmware</dt><dd id="firmware">—</dd><dt>Distance unit</dt><dd id="unit">—</dd><dt>Scanner status</dt><dd id="scanner-status">—</dd></dl></section><section class="card rates"><p class="eyebrow">UNDERSTANDING THE RATE</p><div><strong>75 <small>Hz</small></strong><span>Nominal mirror rotation</span></div><p id="nominal">Complete scans use 1, 2, or 4 mirror rotations, depending on resolution.</p><p>Serial bandwidth limits the scans that can reach this station. The received rate is shown separately above.</p></section><section class="card"><p class="eyebrow">RECORDINGS</p><p id="recording-status">Recording is off</p><div id="recordings" class="recordings"><span>No recordings yet</span></div></section></aside></div>
+    <section class="diagnostics"><div class="panel-heading"><h2>Diagnostic log</h2><span>SESSION EVENTS · SECRETS REMOVED</span></div><pre id="log" aria-live="polite">Waiting for service…</pre></section>
+    <footer><span>LMS200 / LOCAL INSTRUMENT PANEL</span><span>External 24 V supply required · Not a machine-safety protective device</span></footer>
+  </main>
+  <dialog id="hardware"><form id="consent-form"><p class="eyebrow">PHYSICAL SCANNER</p><h2>Confirm the connections</h2><p>USB-C alone cannot connect or power this scanner. Check each item before enabling configuration and streaming.</p><label><input type="checkbox" name="power_connector_identified" required> I identified the separate power/I/O connector and regulated 24 V supply.</label><label><input type="checkbox" name="data_connector_identified" required> I identified the serial data connector; no 24 V enters the adapter.</label><label><input type="checkbox" name="serial_standard_selected" required> The selected RS-232 or RS-422 standard matches the cable and adapter.</label><label><input type="checkbox" name="adapter_voltage_verified" required> The adapter and cable use the correct serial voltage standards.</label><label id="jumper-label"><input type="checkbox" name="rs422_pins_7_8_bridged"> For RS-422, data pins 7 and 8 are correctly bridged.</label><div class="buttons"><button class="primary" type="submit">Enable & start</button><button type="button" id="cancel-consent">Cancel</button></div></form></dialog>
+</body></html>

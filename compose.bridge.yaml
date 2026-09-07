@@ -1,0 +1,14 @@
+services:
+  lms200:
+    environment:
+      LMS_TRANSPORT: tcp
+      LMS_HOST: host.docker.internal
+      LMS_TCP_PORT: "7000"
+      LMS_CONTROL_PORT: "7001"
+      LMS_TOKEN: ${LMS_BRIDGE_TOKEN:-}
+      LMS_AUTOSTART: "false"
+      LMS_READ_ONLY: "true"
+      LMS_SERIAL_STANDARD: ${LMS_SERIAL_STANDARD:-rs232}
+      LMS_TARGET_BAUD: ${LMS_TARGET_BAUD:-38400}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
