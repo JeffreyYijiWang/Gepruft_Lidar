@@ -20,6 +20,11 @@ def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(description="SICK LMS200-30106 acquisition and diagnostics")
     sub = root.add_subparsers(dest="command", required=True)
     sub.add_parser("ports", help="List native serial devices")
+    single = sub.add_parser(
+        "probe-status", help="One native RS-232 status request, fixed 9600 8-N-1"
+    )
+    single.add_argument("--port", required=True, help="Verified native COM/tty port")
+    single.add_argument("--log", type=Path, required=True, help="New JSONL hexadecimal transcript")
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--transport", choices=("simulator", "serial", "tcp", "replay"))
     common.add_argument("--port", help="Serial path/COM name, or TCP data port")
@@ -174,6 +179,21 @@ def main() -> None:
         print(json.dumps(ports(), indent=2))
         return
     try:
+        if args.command == "probe-status":
+            from .status_probe import probe_status
+
+            def interrupt(*_: Any) -> None:
+                raise KeyboardInterrupt
+
+            previous = signal.signal(signal.SIGTERM, interrupt)
+            try:
+                result = probe_status(args.port, args.log)
+            finally:
+                signal.signal(signal.SIGTERM, previous)
+            print(json.dumps(result, indent=2))
+            if not result["success"]:
+                cli.exit(1)
+            return
         settings = settings_from(args)
         if args.command == "serve":
             from .api.app import create_app

@@ -20,12 +20,14 @@ dev = ["pytest>=8,<10", "pytest-asyncio>=0.24,<2", "httpx>=0.27,<1", "ruff>=0.9,
 [project.scripts]
 lms200 = "lms200.cli:main"
 lms200-bridge = "lms200.bridge:main"
+lms200-hardware-diagnostic = "lms200.hardware_diagnostic:main"
+lms200-lmsapi-experiment = "lms200.lmsapi_experiment:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-lms200 = ["web/*", "py.typed"]
+lms200 = ["web/*", "native/*.cs", "py.typed"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

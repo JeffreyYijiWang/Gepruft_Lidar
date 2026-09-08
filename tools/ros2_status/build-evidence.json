@@ -1,0 +1,86 @@
+{
+  "retrieved_or_built_utc": "2026-09-08T18:43:45.263248+00:00",
+  "offline_only": true,
+  "files": {
+    "tools/ros2_status/build-wsl.sh": {
+      "sha256": "e8b0cfb1d00264aadc7338af1f80aff2b6bc6d98bba856db9e2ef50fff80c289",
+      "size": 1636
+    },
+    "tools/ros2_status/CMakeLists.txt": {
+      "sha256": "d8b21f9a59e219eefb6002a94142ed66931f2908cbf67b9a158f38c9fbd5c6d8",
+      "size": 894
+    },
+    "tools/ros2_status/integration_check.py": {
+      "sha256": "1bbd11d3e108621da13385bb714993c0c001572efb880eb91424926eee9a0d5e",
+      "size": 4171
+    },
+    "tools/ros2_status/package.xml": {
+      "sha256": "2cb66e190b76c997b1fb44e8365520681f11ad95e8456bb29fa9f590294e20eb",
+      "size": 499
+    },
+    "tools/ros2_status/pty_relay.py": {
+      "sha256": "4ff795dd718a0fa63d90e51452e2ee957047ff73497c53133d234be17d038b72",
+      "size": 4676
+    },
+    "tools/ros2_status/README.md": {
+      "sha256": "cb5a0feabd45b37869dfade5152e9464fe4bea7dfb411808e2b573fea57edc7e",
+      "size": 6215
+    },
+    "tools/ros2_status/run-node.sh": {
+      "sha256": "28aa3fd9a56be5f1f97320e062cb50cb99f45bf57987e3e157a7bc3f579cd5c3",
+      "size": 344
+    },
+    "tools/ros2_status/src/status_node.cpp": {
+      "sha256": "caa8d162c5ca1fea7698fa78c897195bc6c02c3dff7bc46115d516b3977d95fe",
+      "size": 23245
+    },
+    ".local/laviria_lms200/include/sicktoolbox/SickBufferMonitor.hh": {
+      "sha256": "9877357c7131c0dfed051a029cef909ab54c1c36b2e00efe5e7bfb4f495d03b4",
+      "size": 14915
+    },
+    ".local/laviria_lms200/include/sicktoolbox/SickConfig.hh": {
+      "sha256": "b226bc7454dd0147dd9cf17c8570366e36f40f936337260fe75b28166bde5057",
+      "size": 5507
+    },
+    ".local/laviria_lms200/include/sicktoolbox/SickException.hh": {
+      "sha256": "440240e7949866a0020ddd8ad3884ae56a3fa32c8c24965ab247cdf4383d827b",
+      "size": 5687
+    },
+    ".local/laviria_lms200/include/sicktoolbox/SickLIDAR.hh": {
+      "sha256": "e2b58bd0ddd3dcc965b73e00a484401d645a9a69d2bb112d523fd2b6d15480ae",
+      "size": 14965
+    },
+    ".local/laviria_lms200/include/sicktoolbox/SickLMS.hh": {
+      "sha256": "1579e63d6036cf8beb8253cd4ebd3fa3c83f163d0a8f1387744cbb32900e5964",
+      "size": 56379
+    },
+    ".local/laviria_lms200/include/sicktoolbox/SickLMSBufferMonitor.hh": {
+      "sha256": "116356ee5c17d2cae668b179a5b40ae11ac122618aa5c19a9ca2ae2d7c81f68a",
+      "size": 1443
+    },
+    ".local/laviria_lms200/include/sicktoolbox/SickLMSMessage.hh": {
+      "sha256": "cc464fb5a6a3e3efdc522b2827f9321829474b732a757c809d7a7c39675e8e82",
+      "size": 3431
+    },
+    ".local/laviria_lms200/include/sicktoolbox/SickLMSUtility.hh": {
+      "sha256": "0b214fa4edb1dffe4e1673d9cb34a378a2175626bebea613766e0cf965e16b00",
+      "size": 3953
+    },
+    ".local/laviria_lms200/include/sicktoolbox/SickMessage.hh": {
+      "sha256": "192aba277a28c803bcec316e0c5fd6741ff9328324b9ed202d071c19873d772f",
+      "size": 8632
+    },
+    ".local/laviria_lms200/lib/libSickLMS.a": {
+      "sha256": "315e51cce6e1007073089e4b7b4abd7eeff59e4c8a9c69ea682e8a9ca2a66ae5",
+      "size": 399026
+    },
+    ".local/ros2_status/lib/lms200_ros2_status/lms200_ros2_status": {
+      "sha256": "76c5a5648b2782a054118b198cb03ea72d8b1d660c2567036253481457a292be",
+      "size": 322856
+    },
+    "src/lms200/ros2_status_experiment.py": {
+      "sha256": "c9c80797e350f3a3f70f6093e697d03df298e4d3e41a2ff0b83628461dc006f4",
+      "size": 14937
+    }
+  }
+}

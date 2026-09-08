@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.16)
+project(lms200_ros2_status LANGUAGES CXX)
+
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  message(FATAL_ERROR "This diagnostic requires a Linux PTY and the prepared LaViRIA SDK.")
+endif()
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(LaViRIASickToolbox CONFIG REQUIRED)
+
+add_executable(lms200_ros2_status src/status_node.cpp)
+target_compile_features(lms200_ros2_status PRIVATE cxx_std_17)
+target_compile_options(lms200_ros2_status PRIVATE -Wall -Wextra -Wpedantic)
+target_link_libraries(lms200_ros2_status LaViRIA::SickLMS)
+ament_target_dependencies(lms200_ros2_status rclcpp)
+install(TARGETS lms200_ros2_status DESTINATION lib/${PROJECT_NAME})
+
+enable_testing()
+add_test(NAME status_offline_self_test COMMAND lms200_ros2_status --self-test)
+set_tests_properties(status_offline_self_test PROPERTIES TIMEOUT 10)
+ament_package()

@@ -3,7 +3,8 @@
 Accepted 2026-09-06. Native Python owns the physical serial adapter on Windows/macOS.
 TCP data remains byte-for-byte transparent; a separate JSON-lines control connection
 authenticates, leases a single data session, and changes host baud. Data sockets are paired
-to the lease via a dedicated ephemeral listening port returned by control. No token or JSON
+to the lease via a dedicated listener returned by control (7000 by default, ephemeral when
+configured as port 0). No token or JSON
 is injected into LMS bytes. Control and data must have the same peer IP.
 
 Receive ACK and the entire A0 at the old baud, then change the adapter through the control

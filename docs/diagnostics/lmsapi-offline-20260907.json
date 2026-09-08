@@ -1,0 +1,57 @@
+{
+  "timestamp": "2026-09-07T03:44:05.104676+00:00",
+  "mode": "offline_lmsapi_crc_comparison",
+  "serial_opened": false,
+  "bytes_transmitted": 0,
+  "software": "LMSAPI 1.1c CRC-only rebuild; not the full demo or serial backend",
+  "source_url": "https://sourceforge.net/projects/lmsapi/files/",
+  "input_archive": "C:\\Users\\Jeffr\\Downloads\\lmsapi_1.1c.zip",
+  "archive_sha256": "c8d2b5c38cc497f0ea7032e2c73a689c9bb52846497afdb4809ebf81d4898434",
+  "archive_bytes": 9091205,
+  "archive_entries": 444,
+  "source_sha256": "f879832f35549f0e2816a1af4f10548a69eea7452415bbab4f0ecb6784fde520",
+  "header_sha256": "15b3cad4f99dd3dd9163e02ee7efbaf6d80cdc7477e8b50069b92000340ae933",
+  "library": "C:\\Users\\Jeffr\\OneDrive\\Documents\\GitHub\\Gepruft_Lidar\\third_party\\lmsapi\\crc-check-20260907\\lmsapi_crc_only.dll",
+  "library_sha256": "a87e4d3a706be36fd970a8327d28331191fe0a776ca1bac85aca074d48f7ac19",
+  "python_bits": 64,
+  "comparison": {
+    "published": [
+      {
+        "name": "manual_status_request",
+        "frame_hex": "02 00 01 00 31 15 12",
+        "lmsapi_crc": 4629,
+        "project_crc": 4629,
+        "published_crc": 4629,
+        "match": true
+      },
+      {
+        "name": "manual_startup",
+        "frame_hex": "02 81 17 00 90 4C 4D 53 32 30 30 3B 33 30 31 30 36 33 3B 56 30 32 2E 30 36 20 13 64 5A",
+        "lmsapi_crc": 23140,
+        "project_crc": 23140,
+        "published_crc": 23140,
+        "match": true
+      }
+    ],
+    "synthetic_vectors": 522,
+    "synthetic_mismatch_indices": [],
+    "passed": true
+  },
+  "saved_captures": [
+    {
+      "path": "C:\\Users\\Jeffr\\OneDrive\\Documents\\GitHub\\Gepruft_Lidar\\docs\\diagnostics\\direct-COM7-20260907T030336Z.jsonl",
+      "sha256": "ba5eb668607e11c702f394da1a00096a01173fc0570f6a519272c92fe7799774",
+      "streams": [
+        {
+          "run_id": "7491e0c4-f514-480e-b9b6-0f21e2c4fa45",
+          "phase": "passive",
+          "rx_bytes": 7,
+          "rx_hex": "F0 39 14 31 21 31 01",
+          "complete_candidates": [],
+          "valid_frames": 0
+        }
+      ],
+      "parser": "project Framer; candidate CRC independently checked by LMSAPI"
+    }
+  ]
+}

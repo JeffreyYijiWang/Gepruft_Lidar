@@ -30,7 +30,7 @@ class Service:
                 queue.get_nowait()
                 self.client_drops += 1
             queue.put_nowait(scan)
-        if self.recorder is not None:
+        if self.recorder is not None and not self.recorder.closed:
             if self._record_queue.full():
                 self.record_drops += 1
             else:
@@ -95,33 +95,35 @@ class Service:
             return self.recorder.name
         self.recorder = Recorder(self.settings.recording_dir, self.device.metadata())
         self._record_queue = asyncio.Queue(maxsize=128)
-        self._record_task = asyncio.create_task(self._record())
+        self._record_task = asyncio.create_task(self._record(self.recorder, self._record_queue))
         self.device.note("Recording started")
         return self.recorder.name
 
-    async def _record(self) -> None:
-        recorder = self.recorder
-        assert recorder is not None
+    async def _record(self, recorder: Recorder, queue: asyncio.Queue[Scan | None]) -> None:
         try:
-            while (scan := await self._record_queue.get()) is not None:
+            while (scan := await queue.get()) is not None:
                 try:
                     await asyncio.to_thread(recorder.write, scan)
                 finally:
-                    self._record_queue.task_done()
+                    queue.task_done()
         except Exception:
             self.device.note("Recording failed; check free space and volume permissions")
-            self.record_drops += self._record_queue.qsize() + 1
+            self.record_drops += queue.qsize() + 1
+            if self.recorder is recorder:
+                self.recorder = None
         finally:
             await asyncio.to_thread(recorder.close)
 
     async def stop_recording(self) -> None:
-        if self.recorder is not None:
-            # Detach first so no producer appends after the sentinel.
-            self.recorder = None
-            if self._record_task is not None and not self._record_task.done():
-                await self._record_queue.put(None)
-                await self._record_task
-            self._record_task = None
+        recorder, task, queue = self.recorder, self._record_task, self._record_queue
+        # Detach before awaiting so another recording owns independent resources.
+        self.recorder = None
+        self._record_task = None
+        if task is not None:
+            if recorder is not None and not task.done():
+                await queue.put(None)
+            await task
+        if recorder is not None:
             self.device.note("Recording finalized")
 
     def snapshot(self) -> dict[str, Any]:

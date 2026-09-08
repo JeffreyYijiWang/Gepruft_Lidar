@@ -1,0 +1,34 @@
+{
+  "prepared_date": "2026-09-07",
+  "purpose": "Offline source review and compilation only; no hardware qualification",
+  "repositories": [
+    {
+      "name": "sicktoolbox",
+      "url": "https://github.com/ros-drivers/sicktoolbox.git",
+      "commit": "9ad2fbf962e7ac46991ced5ce81a6536895bed6c",
+      "directory": "third_party/sicktoolbox",
+      "role": "Standalone SickLMS2xx C++ library and examples"
+    },
+    {
+      "name": "sicktoolbox_wrapper",
+      "url": "https://github.com/ros-drivers/sicktoolbox_wrapper.git",
+      "commit": "32bd9d5c823567471cd22b6cfe84436768a45680",
+      "directory": "third_party/sicktoolbox_wrapper",
+      "role": "ROS 1 reference source only; not a Jazzy package"
+    },
+    {
+      "name": "sick_lms200_node",
+      "url": "https://github.com/LaViRIA/sick_lms200_node.git",
+      "commit": "0a8f7f0362bd0373b71f709003f36bace7e7cd54",
+      "directory": "third_party/sick_lms200_node",
+      "role": "ROS 2 Jazzy candidate; review required before live use"
+    },
+    {
+      "name": "sicktoolbox-1.0.1",
+      "url": "https://github.com/LaViRIA/sicktoolbox.git",
+      "commit": "2b486d2b3b1299f4401f04c2193f244b594fb532",
+      "directory": "third_party/sicktoolbox-1.0.1",
+      "role": "Separate legacy API dependency required by the ROS 2 candidate"
+    }
+  ]
+}

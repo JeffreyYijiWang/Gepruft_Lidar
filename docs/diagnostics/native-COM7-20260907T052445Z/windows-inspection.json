@@ -1,0 +1,53 @@
+{
+  "inspectedUtc": "2026-09-07T05:25:45.3623180Z",
+  "ports": [
+    {
+      "Status": "OK",
+      "Class": "Ports",
+      "FriendlyName": "Keyspan USB Serial Port (COM7)",
+      "InstanceId": "KEYSPAN\\*USA19HMAP\\00_00"
+    },
+    {
+      "Status": "OK",
+      "Class": "Ports",
+      "FriendlyName": "Standard Serial over Bluetooth link (COM4)",
+      "InstanceId": "BTHENUM\\{00001101-0000-1000-8000-00805F9B34FB}_LOCALMFG&0000\\7&35B0D0EE&0&000000000000_00000000"
+    },
+    {
+      "Status": "Unknown",
+      "Class": "Ports",
+      "FriendlyName": "USB Serial Device (COM5)",
+      "InstanceId": "USB\\VID_291A&PID_8355&MI_01\\7&5B4F71C&1&0001"
+    },
+    {
+      "Status": "Unknown",
+      "Class": "Ports",
+      "FriendlyName": "USB Serial Device (COM6)",
+      "InstanceId": "USB\\VID_15D1&PID_0000\\6&1861C3C2&5&4"
+    },
+    {
+      "Status": "OK",
+      "Class": "Ports",
+      "FriendlyName": "Standard Serial over Bluetooth link (COM3)",
+      "InstanceId": "BTHENUM\\{00001101-0000-1000-8000-00805F9B34FB}_LOCALMFG&0002\\7&35B0D0EE&0&E8EECC3EA100_C00000000"
+    }
+  ],
+  "serialDevices": [
+    {
+      "DeviceID": "COM4",
+      "Name": "Standard Serial over Bluetooth link (COM4)",
+      "Status": "OK",
+      "ConfigManagerErrorCode": 0,
+      "PNPDeviceID": "BTHENUM\\{00001101-0000-1000-8000-00805F9B34FB}_LOCALMFG&0000\\7&35B0D0EE&0&000000000000_00000000"
+    },
+    {
+      "DeviceID": "COM3",
+      "Name": "Standard Serial over Bluetooth link (COM3)",
+      "Status": "OK",
+      "ConfigManagerErrorCode": 0,
+      "PNPDeviceID": "BTHENUM\\{00001101-0000-1000-8000-00805F9B34FB}_LOCALMFG&0002\\7&35B0D0EE&0&E8EECC3EA100_C00000000"
+    }
+  ],
+  "matchingProcesses": [],
+  "serialPortOpenedByInspection": false
+}

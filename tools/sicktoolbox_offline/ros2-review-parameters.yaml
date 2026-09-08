@@ -1,0 +1,11 @@
+# Review template only. Do not launch the unmodified upstream node on hardware.
+# The placeholder deliberately does not select a real serial device.
+# 9600 is a desired rate: upstream Initialize still contains baud fallback.
+sick_lms200_node:
+  ros__parameters:
+    serial_port: /dev/LMS200_NOT_CONFIGURED
+    baud_rate: 9600
+    range_min: 0.0
+    range_max: 80.0
+# range_max is only message metadata. Upstream divides every range by 1000,
+# even for centimetre measurements, so units must be corrected before use.

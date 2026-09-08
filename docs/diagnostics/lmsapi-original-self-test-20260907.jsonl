@@ -1,0 +1,2 @@
+{"timestamp":"2026-09-07T03:55:03.6525305Z","event":"dll_loaded","bits":32,"sha256":"534f7b6fe9212f7592f409ccfafc94d7cd618cb3bb49175823e911186dad437c"}
+{"timestamp":"2026-09-07T03:55:03.6803139Z","event":"self_test","crc":4629,"expected_crc":4629,"serial_opened":false,"passed":true}

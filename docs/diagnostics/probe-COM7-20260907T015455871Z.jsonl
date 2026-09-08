@@ -1,0 +1,5 @@
+{"time": "2026-09-07T01:54:56.344621+00:00", "event": "opening", "port": "COM7", "baud": 9600, "format": "8-N-1", "standard": "rs232"}
+{"time": "2026-09-07T01:54:56.350164+00:00", "event": "stale_input_cleared"}
+{"time": "2026-09-07T01:54:56.350164+00:00", "event": "tx_attempt", "hex": "02 00 01 00 31 15 12"}
+{"time": "2026-09-07T01:54:56.364963+00:00", "event": "tx_accepted_by_driver", "count": 7, "hex": "02 00 01 00 31 15 12"}
+{"time": "2026-09-07T01:54:56.608959+00:00", "event": "result", "port": "COM7", "serial_standard": "rs232", "baud": 9600, "data_bits": 8, "parity": "N", "stop_bits": 1, "port_opened": true, "port_closed": true, "success": false, "ack": false, "tx_bytes": 7, "rx_bytes": 0, "tx_hex": "02 00 01 00 31 15 12", "rx_hex": "", "response": null, "error": "TimeoutError: No complete ACK + valid B1 status response; no retry attempted", "framing": {"frames": 0, "crc_errors": 0, "invalid_lengths": 0, "noise_bytes": 0, "truncated_frames": 0}, "trailing_partial_hex": ""}

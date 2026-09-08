@@ -1,0 +1,17 @@
+[
+  {
+    "Algorithm": "SHA256",
+    "Hash": "4AA261AC48BA4DC4BCE547FFC7EC9E2DD3F8664A46122EEC40F49C51D5FAE496",
+    "Path": "C:\\Users\\Jeffr\\OneDrive\\Documents\\GitHub\\Gepruft_Lidar\\src\\lms200\\hardware_diagnostic.py"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "393336BC1F1A8C76F0A65B0EEA6C002B93A5BABE46C547E13E32F38FC43D4A1C",
+    "Path": "C:\\Users\\Jeffr\\OneDrive\\Documents\\GitHub\\Gepruft_Lidar\\src\\lms200\\protocol\\framing.py"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "DC1AC2E06F27918FC7BF1FE76DC404B68F15106CAD55D09B910E49639EAA1655",
+    "Path": "C:\\Users\\Jeffr\\OneDrive\\Documents\\GitHub\\Gepruft_Lidar\\src\\lms200\\protocol\\crc.py"
+  }
+]

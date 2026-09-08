@@ -40,6 +40,8 @@ class ReplayTransport:
         if self.index is not None and self._remaining == 0:
             line = self.index.readline()
             if not line:
+                if self.file.read(1):
+                    raise ValueError("Recording contains data beyond its timing index")
                 raise EOFError("Replay complete")
             item = json.loads(line)
             self._remaining = int(item["length"])
@@ -55,6 +57,8 @@ class ReplayTransport:
         amount = min(size, 137, self._remaining) if self.index is not None else min(size, 137)
         data = self.file.read(amount)
         if not data:
+            if self.index is not None and self._remaining:
+                raise ValueError("Recording ended inside an indexed telegram")
             raise EOFError("Replay complete")
         if self.index is not None:
             self._remaining -= len(data)

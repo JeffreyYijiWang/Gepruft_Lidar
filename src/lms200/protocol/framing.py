@@ -1,5 +1,6 @@
 """Incremental LMS framing, Listing §4.2 pp21–24. No I/O here."""
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import IntEnum
 
@@ -35,6 +36,20 @@ class FrameStats:
     truncated_frames: int = 0
 
 
+@dataclass(frozen=True)
+class FrameCandidate:
+    """Optional diagnostic evidence; offsets are zero-based in the received stream."""
+
+    offset: int
+    raw: bytes
+    crc_expected: int
+    crc_received: int
+
+    @property
+    def crc_valid(self) -> bool:
+        return self.crc_expected == self.crc_received
+
+
 def encode(payload: bytes, address: int = 0) -> bytes:
     if not 0 <= address <= 255 or not 1 <= len(payload) <= MAX_PAYLOAD:
         raise ValueError("Invalid address or payload length")
@@ -43,9 +58,15 @@ def encode(payload: bytes, address: int = 0) -> bytes:
 
 
 class Framer:
-    def __init__(self) -> None:
+    def __init__(self, observer: Callable[[FrameCandidate], None] | None = None) -> None:
         self.buffer = bytearray()
         self.stats = FrameStats()
+        self.offset = 0
+        self.observer = observer
+
+    def _discard(self, count: int) -> None:
+        del self.buffer[:count]
+        self.offset += count
 
     def feed(self, data: bytes) -> list[Frame | Control]:
         self.buffer.extend(data)
@@ -54,30 +75,35 @@ class Framer:
             first = self.buffer[0]
             if first in (Control.ACK, Control.NAK):
                 events.append(Control(first))
-                del self.buffer[0]
+                self._discard(1)
                 continue
             if first != STX:
                 self.stats.noise_bytes += 1
-                del self.buffer[0]
+                self._discard(1)
                 continue
             if len(self.buffer) < 4:
                 break
             length = int.from_bytes(self.buffer[2:4], "little")
             if not 1 <= length <= MAX_PAYLOAD:
                 self.stats.invalid_lengths += 1
-                del self.buffer[0]
+                self._discard(1)
                 continue
             total = length + 6
             if len(self.buffer) < total:
                 break
             raw = bytes(self.buffer[:total])
-            if crc16(raw[:-2]) != int.from_bytes(raw[-2:], "little"):
+            candidate = FrameCandidate(
+                self.offset, raw, crc16(raw[:-2]), int.from_bytes(raw[-2:], "little")
+            )
+            if self.observer is not None:
+                self.observer(candidate)
+            if not candidate.crc_valid:
                 self.stats.crc_errors += 1
-                del self.buffer[0]  # Rescan; embedded STX is only trusted after CRC validation.
+                self._discard(1)  # Rescan; embedded STX is trusted only after CRC validation.
                 continue
             events.append(Frame(raw[1], raw[4:-2], raw))
             self.stats.frames += 1
-            del self.buffer[:total]
+            self._discard(total)
         return events
 
     def expire(self) -> list[Frame | Control]:
@@ -85,8 +111,9 @@ class Framer:
         if not self.buffer:
             return []
         self.stats.truncated_frames += 1
-        del self.buffer[0]
+        self._discard(1)
         return self.feed(b"")
 
     def reset(self) -> None:
         self.buffer.clear()
+        self.offset = 0

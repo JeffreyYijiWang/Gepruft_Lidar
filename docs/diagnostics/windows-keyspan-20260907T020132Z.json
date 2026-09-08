@@ -1,0 +1,39 @@
+{
+  "timestamp": "2026-09-07T02:01:32.2923847Z",
+  "source": "Native Windows CIM/PnP read-only query; selected results preserved from tool output",
+  "devices": [
+    {
+      "name": "Keyspan USB Serial Port (COM7)",
+      "pnp_device_id": "KEYSPAN\\*USA19HMAP\\00_00",
+      "parent": "USB\\VID_06CD&PID_0121\\6&2c1f58e1&0&1",
+      "status": "OK",
+      "config_manager_error_code": 0,
+      "service": "USA19HP",
+      "driver_provider": "KSPN",
+      "driver_version": "17.14.44.551",
+      "driver_date_reported": "2024-08-15T20:00:00-04:00",
+      "inf": "oem79.inf",
+      "signed": true,
+      "signer": "Microsoft Windows Hardware Compatibility Publisher"
+    },
+    {
+      "name": "Keyspan USB Serial Adapter",
+      "pnp_device_id": "USB\\VID_06CD&PID_0121\\6&2C1F58E1&0&1",
+      "parent": "USB\\VID_05AC&PID_100F\\5&2e5adbdc&0&1",
+      "hardware_ids": ["USB\\VID_06CD&PID_0121&REV_0100", "USB\\VID_06CD&PID_0121"],
+      "usb_vid": "06CD",
+      "usb_pid": "0121",
+      "status": "OK",
+      "config_manager_error_code": 0,
+      "service": "USA19H",
+      "driver_provider": "KSPN",
+      "driver_version": "17.14.44.557",
+      "driver_date_reported": "2024-08-15T20:00:00-04:00",
+      "inf": "oem74.inf",
+      "signed": true,
+      "signer": "Microsoft Windows Hardware Compatibility Publisher"
+    }
+  ],
+  "possible_serial_applications": [],
+  "ownership_note": "Process listing does not establish COM7 ownership. A successful exclusive open is the availability test."
+}

@@ -1,0 +1,46 @@
+{
+  "date": "2026-09-07",
+  "purpose": "Prepare the two requested LaViRIA repositories for the next session without running hardware",
+  "source_lock": "tools/sicktoolbox_offline/sources.lock.json",
+  "repositories": {
+    "https://github.com/LaViRIA/sicktoolbox.git": "2b486d2b3b1299f4401f04c2193f244b594fb532",
+    "https://github.com/LaViRIA/sick_lms200_node.git": "0a8f7f0362bd0373b71f709003f36bace7e7cd54"
+  },
+  "sources_unchanged": true,
+  "install_prefix": ".local/laviria_lms200",
+  "artifacts": [
+    {
+      "path": ".local/laviria_lms200/lib/libSickLMS.a",
+      "sha256": "315e51cce6e1007073089e4b7b4abd7eeff59e4c8a9c69ea682e8a9ca2a66ae5",
+      "headers_verified": 9,
+      "cmake_target": "LaViRIA::SickLMS"
+    },
+    {
+      "path": ".local/laviria_lms200/lib/sick_lms200_node/sick_lms200_node",
+      "sha256": "5c0c99c9605e71be32f88c1b4049cc3d7f6399b1864de120b2050fec74eb6c2c",
+      "ros_package": "sick_lms200_node",
+      "ros_executable_registration": "sick_lms200_node sick_lms200_node",
+      "format": "ELF64 little-endian x86-64",
+      "direct_shared_library_files_verified": 10,
+      "transitive_dynamic_loading_tested": false
+    }
+  ],
+  "build_exit_codes": { "cpp_sdk": 0, "ros2_package": 0 },
+  "offline_verification_exit_code": 0,
+  "logs": [
+    "tmp/laviria-sdk-build.log",
+    "tmp/laviria-permanent-install.log",
+    "tmp/laviria-offline-verification.log"
+  ],
+  "hardware_ready": false,
+  "remaining_issues": [
+    "Running WSL kernel CONFIG_USB_SERIAL_KEYSPAN is not set",
+    "Upstream payload bounds and response parsing require review",
+    "Upstream initialization searches other baud rates",
+    "ROS 2 stop service does not stop scanning"
+  ],
+  "scanner_executables_run": false,
+  "serial_ports_opened": false,
+  "usb_devices_attached": false,
+  "future_test_scheduled": false
+}

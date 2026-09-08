@@ -195,8 +195,13 @@ class Device:
             raise
         except EOFError:
             if isinstance(self.transport, ReplayTransport):
-                self.note("Replay complete")
-                self.transition(State.CONNECTED)
+                if self.framer.buffer:
+                    self.framer.stats.truncated_frames += 1
+                    self.error = "Replay ended inside a telegram"
+                    self.transition(State.FAULTED)
+                else:
+                    self.note("Replay complete")
+                    self.transition(State.CONNECTED)
             else:
                 self.error = "Transport disconnected"
                 self.transition(State.FAULTED)
@@ -424,7 +429,8 @@ class Device:
     def snapshot(self) -> dict[str, Any]:
         now = time.monotonic()
         recent = [t for t in self._times if now - t <= 3]
-        received_hz = (len(recent) - 1) / (recent[-1] - recent[0]) if len(recent) > 1 else 0
+        span = recent[-1] - recent[0] if len(recent) > 1 else 0
+        received_hz = (len(recent) - 1) / span if span > 0 else 0
         count = self.latest.count if self.latest else 0
         resolution = self.info.resolution if self.info else self.settings.resolution
         return {

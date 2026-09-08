@@ -1,0 +1,52 @@
+{
+  "date": "2026-09-07",
+  "source_lock": "tools/sicktoolbox_offline/sources.lock.json",
+  "environment": {
+    "distribution": "Ubuntu-24.04 (WSL 2)",
+    "ros": "jazzy",
+    "compiler": "GNU C++ 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1)",
+    "compiler_sha256": "1353e9bdd29a7295c7226bf6c63abccce056d8cac31f112e5cdbecc3f28c2769",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "kernel_CONFIG_USB_SERIAL_KEYSPAN": "not set"
+  },
+  "builds": [
+    {
+      "name": "standalone SickLMS2xx",
+      "cxx_standard": 14,
+      "exit_code": 0,
+      "example_executables_built": 8,
+      "log": "tmp/sicktoolbox-build.log",
+      "artifacts": [
+        {
+          "path": "tmp/sicktoolbox-build/libSickLMS2xx.a",
+          "sha256": "ef80ad6b83438b7b956f48b0097dac505c1389ddce23c7c3207ad2e0a6024448"
+        },
+        {
+          "path": "tmp/sicktoolbox-build/lms2xx_simple_app",
+          "sha256": "78b5352ca5b46e7259ecf9deeb54fb5c8f4db31f42845e37923a003f0815aec0"
+        }
+      ]
+    },
+    {
+      "name": "LaViRIA ROS 2 LMS200 candidate",
+      "cxx_standard": 17,
+      "exit_code": 0,
+      "log": "tmp/ros2-lms200-build.log",
+      "artifacts": [
+        {
+          "path": "tmp/ros2-lms200-build/sick_lms200_node",
+          "sha256": "075c9ef80db7ac511cc0fe6985b0aa53e76b4c84aa27bfd21032996d16d7ac05"
+        },
+        {
+          "path": "tmp/ros2-lms200-build/install/lib/sick_lms200_node/sick_lms200_node",
+          "sha256": "5c0c99c9605e71be32f88c1b4049cc3d7f6399b1864de120b2050fec74eb6c2c"
+        }
+      ]
+    }
+  ],
+  "vendor_sources_modified": false,
+  "scanner_programs_executed": false,
+  "serial_ports_opened": false,
+  "usb_devices_attached": false,
+  "hardware_qualification": "not performed; known issues require review"
+}

@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Literal, Self
 
-from pydantic import BaseModel, Field, SecretStr, model_validator
+from pydantic import BaseModel, Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from .protocol.commands import validate_geometry
@@ -63,6 +63,12 @@ class Settings(BaseSettings):
     autostart: bool = False
     web_host: str = "127.0.0.1"
     web_port: int = Field(default=8000, ge=1, le=65535)
+
+    @field_validator("baud", "target_baud", "angle", mode="before")
+    @classmethod
+    def numeric_environment_values(cls, value: object) -> object:
+        # Pydantic Literal[int] checks identity before coercion; environment values are strings.
+        return int(value) if isinstance(value, str) else value
 
     @model_validator(mode="after")
     def validate_settings(self) -> Self:

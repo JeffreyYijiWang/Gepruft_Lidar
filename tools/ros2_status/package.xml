@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>lms200_ros2_status</name>
+  <version>0.1.0</version>
+  <description>One-request ROS 2 diagnostic using the pinned LaViRIA LMS message library and a supervised Windows serial relay.</description>
+  <maintainer email="maintainer@example.invalid">Gepruft Lidar project</maintainer>
+  <license>MIT</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclcpp</depend>
+  <export><build_type>ament_cmake</build_type></export>
+</package>

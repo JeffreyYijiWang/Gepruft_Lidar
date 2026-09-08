@@ -1,0 +1,43 @@
+{
+  "serial_config": {
+    "baudrate": 9600,
+    "bytesize": 8,
+    "parity": "N",
+    "stopbits": 1,
+    "xonxoff": false,
+    "rtscts": false,
+    "dsrdtr": false,
+    "timeout": 0.05,
+    "write_timeout": 1.0
+  },
+  "ack": false,
+  "nak": false,
+  "telegrams": [],
+  "write_count": 7,
+  "flush_completed": true,
+  "port_closed": true,
+  "power_on_confirmed": true,
+  "startup_complete_confirmed": true,
+  "success": false,
+  "error": null,
+  "post_flush_read_seconds": 6.717999999999847,
+  "node_exit_code": 3,
+  "windows_status_valid": false,
+  "wsl_exit_code": 3,
+  "rx_bytes": 0,
+  "rx_hex": "",
+  "post_tx_ack": false,
+  "post_tx_nak": false,
+  "status": null,
+  "startup": null,
+  "framing": {
+    "frames": 0,
+    "crc_errors": 0,
+    "invalid_lengths": 0,
+    "noise_bytes": 0,
+    "truncated_frames": 0
+  },
+  "trailing_partial_hex": "",
+  "node_tx_hex": "02 00 01 00 31 15 12",
+  "partial_node_tx_hex": ""
+}

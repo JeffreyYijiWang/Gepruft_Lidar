@@ -12,3 +12,11 @@ recordings/
 .env
 .coverage
 htmlcov/
+/third_party/sick_mst/
+/third_party/lmsapi/
+/third_party/sicktoolbox/
+/third_party/sicktoolbox_wrapper/
+/third_party/sicktoolbox-1.0.1/
+/third_party/sick_lms200_node/
+/.local/laviria_lms200/
+/.local/ros2_status/
