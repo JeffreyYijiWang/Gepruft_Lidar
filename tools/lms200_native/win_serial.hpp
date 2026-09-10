@@ -44,6 +44,8 @@ public:
     bool is_open() const noexcept;
     bool ever_opened() const noexcept;
     std::string settings_json() const;
+    // Fresh GetCommState on this handle; logs and throws before TX on any mismatch.
+    std::string verify_settings_json(const char* stage);
     // Does not return until the worker has issued its first ReadFile.
     void start_reader(RxCallback receive, NoteCallback note);
     // The failed-reader exception is cleanup-only and accepts exactly the

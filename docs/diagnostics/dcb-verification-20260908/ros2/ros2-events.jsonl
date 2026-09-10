@@ -1,0 +1,7 @@
+{"timestamp_utc":"2026-09-08T19:44:27.442Z","event":"run_started","port":"/dev/pts/2","overall_limit_seconds":660,"receive_window_seconds":6,"backend":"LaViRIA_library_status_only"}
+{"timestamp_utc":"2026-09-08T19:44:27.449Z","event":"pty_open","baud":9600,"data_bits":8,"parity":"none","stop_bits":1,"flow_control":"none","termios_readback":true}
+{"timestamp_utc":"2026-09-08T19:44:27.472Z","event":"reader_ready","commands_sent":0}
+{"timestamp_utc":"2026-09-08T19:44:27.565Z","event":"library_tx_requested","count":7,"hex":"02 00 01 00 31 15 12","receive_boundary":0}
+{"timestamp_utc":"2026-09-08T19:44:27.575Z","event":"library_tx_completed","checked_pty_write_count":7,"native_transmission_evidence":"Windows relay journal"}
+{"timestamp_utc":"2026-09-08T19:44:33.582Z","event":"pty_closed","success":true}
+{"timestamp_utc":"2026-09-08T19:44:33.588Z","event":"result","success":false,"sent":true,"rx_count":0,"ack":false,"nak":false,"valid_status":false,"valid_status_after_ack":false,"valid_frames":0,"invalid_crc_frames":0,"pending_hex":"","post_send_seconds":6.012571,"cancelled":false,"overall_timeout":false}

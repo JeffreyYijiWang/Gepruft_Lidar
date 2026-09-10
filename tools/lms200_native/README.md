@@ -122,6 +122,24 @@ distance-value interpretation or scan reconstruction is substituted for raw capt
 
 ## Build and run
 
+For the focused DCB audit, `--status-only` permits exactly one status exchange
+and no retry, variant, start, or stop. It is mutually exclusive with
+`--listen-only` and `--set-100deg-1deg`. After current powered-on/startup-complete/
+exclusive-port confirmation, the live command is:
+
+```powershell
+& .\tmp\native-lms200\lms200-native.exe --run --confirm-hardware --status-only --output NEW_DIRECTORY
+```
+
+Without `--run`, this option only prints its plan. Exit 0 in this mode requires
+a valid status exchange, not scan data; exit 3 can mean no scanner reply despite
+successful DCB verification. All native writes now repeat checked `GetCommState`
+on the same handle immediately before `WriteFile`, in addition to the readback
+after configuration. Unavailable or mismatched 9600/8-N-1/no-flow settings block
+TX. Numeric stop-bit enums are logged with their symbolic name and actual bit
+count (`ONESTOPBIT=0` means one). See the
+[fresh three-program audit](../../docs/diagnostics/dcb-verification-20260908/SUMMARY.md).
+
 From repository-root PowerShell:
 
 ```powershell

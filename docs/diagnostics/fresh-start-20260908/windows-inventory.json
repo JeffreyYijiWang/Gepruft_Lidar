@@ -1,0 +1,94 @@
+{
+  "TimestampUtc": "2026-09-08T19:11:22.3593368Z",
+  "Method": "Native Windows CIM/PnP/registry/files; no serial port opened",
+  "OS": {
+    "Caption": "Microsoft Windows 11 Home",
+    "Version": "10.0.26200",
+    "BuildNumber": "26200",
+    "Architecture": "64-bit",
+    "ProcessorArchitecture": "AMD64",
+    "DisplayVersion": "25H2",
+    "UBR": 9278
+  },
+  "Devices": [
+    {
+      "Name": "Keyspan USB Serial Port (COM7)",
+      "PNPDeviceID": "KEYSPAN\\*USA19HMAP\\00_00",
+      "HardwareID": [
+        "KEYSPAN\\*USA19HMAP"
+      ],
+      "Service": "USA19HP",
+      "Status": "OK",
+      "ConfigManagerErrorCode": 0
+    },
+    {
+      "Name": "Keyspan USB Serial Adapter",
+      "PNPDeviceID": "USB\\VID_06CD&PID_0121\\6&2C1F58E1&0&1",
+      "HardwareID": [
+        "USB\\VID_06CD&PID_0121&REV_0100",
+        "USB\\VID_06CD&PID_0121"
+      ],
+      "Service": "USA19H",
+      "Status": "OK",
+      "ConfigManagerErrorCode": 0
+    }
+  ],
+  "Parents": [
+    {
+      "InstanceId": "KEYSPAN\\*USA19HMAP\\00_00",
+      "Parent": "USB\\VID_06CD&PID_0121\\6&2c1f58e1&0&1"
+    },
+    {
+      "InstanceId": "USB\\VID_06CD&PID_0121\\6&2C1F58E1&0&1",
+      "Parent": "USB\\VID_05AC&PID_100F\\5&2e5adbdc&0&1"
+    }
+  ],
+  "Drivers": [
+    {
+      "DeviceName": "Keyspan USB Serial Port",
+      "DeviceID": "KEYSPAN\\*USA19HMAP\\00_00",
+      "DriverProviderName": "KSPN",
+      "DriverVersion": "17.14.44.551",
+      "DriverDate": "2024-08-15T20:00:00-04:00",
+      "InfName": "oem79.inf",
+      "IsSigned": true,
+      "Signer": "Microsoft Windows Hardware Compatibility Publisher"
+    },
+    {
+      "DeviceName": "Keyspan USB Serial Adapter",
+      "DeviceID": "USB\\VID_06CD&PID_0121\\6&2C1F58E1&0&1",
+      "DriverProviderName": "KSPN",
+      "DriverVersion": "17.14.44.557",
+      "DriverDate": "2024-08-15T20:00:00-04:00",
+      "InfName": "oem74.inf",
+      "IsSigned": true,
+      "Signer": "Microsoft Windows Hardware Compatibility Publisher"
+    }
+  ],
+  "InstalledInfMetadata": [
+    {
+      "InfName": "oem79.inf",
+      "VersionLines": [
+        "Provider=%ProviderName%",
+        "Class=PORTS",
+        "DriverVer = 08/16/2024,17.14.44.551",
+        "%MfgName%=Keyspan,NTamd64",
+        "[Keyspan.NTamd64]",
+        "ProviderName=\"KSPN\""
+      ],
+      "SHA256": "321939EE3FDBA3DD8818E1E8C964A99324787803A5B610511C271EB1D0C98979"
+    },
+    {
+      "InfName": "oem74.inf",
+      "VersionLines": [
+        "Class=USB",
+        "Provider=%Keyspan%",
+        "DriverVer = 08/16/2024,17.14.44.557",
+        "%KeyspanMfg%=Keyspan,NTamd64",
+        "[Keyspan.NTamd64]"
+      ],
+      "SHA256": "AE261B138FEC70CF2C3B9FD01CE8E778F9EBBCF356572174F3C78C455E6A47DE"
+    }
+  ],
+  "PortOccupancy": "Not tested: PnP enumeration does not establish whether another application owns a handle"
+}

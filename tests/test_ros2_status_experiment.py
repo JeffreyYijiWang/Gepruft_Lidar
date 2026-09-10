@@ -157,6 +157,7 @@ def test_run_keeps_physical_power_modes_distinct_and_waits_for_both_readers(
     monkeypatch.setattr(rs, "verify_build", lambda: {"files": {}})
     monkeypatch.setattr(rs, "wsl_path", str)
     monkeypatch.setattr(rs, "initial_state", lambda _: {})
+    monkeypatch.setattr(rs, "verify_windows_serial", lambda *args: {"synthetic_test": True})
     monkeypatch.setattr(rs, "flush_output", lambda _: None)
     monkeypatch.setattr(rs.queue, "Queue", lambda: events)
     monkeypatch.setattr(rs.threading, "Thread", lambda **_: collector)

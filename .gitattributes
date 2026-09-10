@@ -1,0 +1,5 @@
+# WSL invokes these directly; CRLF makes bash reject their option lines.
+/tools/ros2_status/build-wsl.sh text eol=lf
+/tools/ros2_status/run-node.sh text eol=lf
+/tools/sicktoolbox_offline/environment.bash text eol=lf
+/tools/sicktoolbox_offline/verify-laviria-wsl.sh text eol=lf

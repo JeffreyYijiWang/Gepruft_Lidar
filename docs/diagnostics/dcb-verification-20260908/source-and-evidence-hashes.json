@@ -1,0 +1,104 @@
+{
+  "collected_utc": "2026-09-08T19:50:56.877987+00:00",
+  "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+  "pyserial": "3.5",
+  "serial_opened": false,
+  "files": {
+    "src/lms200/hardware_diagnostic.py": {
+      "size": 39013,
+      "sha256": "a5514d128fb21825855a4d1c836c994446de6beaa91174a768d12ca62970279d"
+    },
+    "src/lms200/windows_serial_state.py": {
+      "size": 5467,
+      "sha256": "ddcbdf71fed2219df407f03e67d279b3be596707136b3a3d0f45521cc256b836"
+    },
+    "src/lms200/ros2_status_experiment.py": {
+      "size": 15675,
+      "sha256": "1383993ca45685cddb7e6b0f6190eaaee2bd133ce29cc66f071efb282030e4c5"
+    },
+    "src/lms200/transports/serial.py": {
+      "size": 3674,
+      "sha256": "5343812fc5f06cd9b979c0de2404c1bac1f1c7575948809d05d71db61cc7dc12"
+    },
+    ".venv/Lib/site-packages/serial/serialwin32.py": {
+      "size": 20284,
+      "sha256": "17681ea9a650120c71db1aae9b8881301a40d38c47b34bb0da050e3f5bfbbe00"
+    },
+    ".venv/Lib/site-packages/serial/win32.py": {
+      "size": 11138,
+      "sha256": "964eaba1df661e4ab381c8666aa077ca08939260164cd434d0827df39663bd32"
+    },
+    ".venv/Lib/site-packages/serial/serialutil.py": {
+      "size": 21797,
+      "sha256": "3c84f8c7c319f161a85d6f8db5bedc4f65255714589bdcbeee6f2daf65a17c0a"
+    },
+    "docs/diagnostics/dcb-verification-20260908/python.jsonl": {
+      "size": 9267,
+      "sha256": "f02e4c78a10534ef28dc3bc4440a7cd331aa65fe0171f5aecb8bee4d87b41a8a"
+    },
+    "docs/diagnostics/dcb-verification-20260908/python.rx.bin": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "docs/diagnostics/dcb-verification-20260908/SUMMARY.md": {
+      "size": 13938,
+      "sha256": "73b451c6407a42d084d388fa68d9c15dba9fa7789cbababd7d7d98910df7b92d"
+    },
+    "docs/diagnostics/dcb-verification-20260908/verify_evidence.py": {
+      "size": 5372,
+      "sha256": "404cb0303eb98e289787d148bf6916f98ae0fba797b0031952c27c157b1e7191"
+    },
+    "docs/diagnostics/dcb-verification-20260908/native/build-manifest.json": {
+      "size": 1973,
+      "sha256": "bea68f5fb6d4e55b8ba24c464e3c76c8b1d3c1b2b99895eaca4e5603c980a296"
+    },
+    "docs/diagnostics/dcb-verification-20260908/native/events.jsonl": {
+      "size": 7203,
+      "sha256": "d514be4cefdd7a90a9f4520aa9e3d19cbe6c6a0bbc660793aeda180f5014b7f9"
+    },
+    "docs/diagnostics/dcb-verification-20260908/native/result.json": {
+      "size": 2314,
+      "sha256": "e7de46ea6b179fd1da4bec4666a5ba04ecc333604a9601e6330f6b56346ea95f"
+    },
+    "docs/diagnostics/dcb-verification-20260908/native/rx.bin": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "docs/diagnostics/dcb-verification-20260908/ros2/build-evidence.json": {
+      "size": 4748,
+      "sha256": "9807e632b703cd349fb9abfa5e1dff294a359e4e40402f1583d319f7c61eed38"
+    },
+    "docs/diagnostics/dcb-verification-20260908/ros2/cancel.trigger": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "docs/diagnostics/dcb-verification-20260908/ros2/listener.ready": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "docs/diagnostics/dcb-verification-20260908/ros2/ros2-console.log": {
+      "size": 121,
+      "sha256": "f01e94af0b7ab8626f1840e5dbf2eda3d5bc7d00def78fdc306de1f31085dcae"
+    },
+    "docs/diagnostics/dcb-verification-20260908/ros2/ros2-events.jsonl": {
+      "size": 1117,
+      "sha256": "131233c32893c8aa10de9a57c29e9f4f53d2c8771598bcc8585ba36aa095948e"
+    },
+    "docs/diagnostics/dcb-verification-20260908/ros2/ros2.ready": {
+      "size": 76,
+      "sha256": "f1e0d8d1ad937662072af5fdb1d49e8f7eafb1aaa6b055d4c98c5c21a21bb481"
+    },
+    "docs/diagnostics/dcb-verification-20260908/ros2/status.trigger": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "docs/diagnostics/dcb-verification-20260908/ros2/windows-raw.jsonl": {
+      "size": 8033,
+      "sha256": "e019babcf313cd725a93399f9941d49b7f0272512c21e2c484e9051a69ccfd47"
+    },
+    "docs/diagnostics/dcb-verification-20260908/ros2/windows-result.json": {
+      "size": 3472,
+      "sha256": "1ad4bfc0384142cf03e2337562148fc92037d026b515d907da64ad278d8ef142"
+    }
+  }
+}

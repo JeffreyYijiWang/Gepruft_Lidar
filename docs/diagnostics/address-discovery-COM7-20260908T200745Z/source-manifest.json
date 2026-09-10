@@ -1,0 +1,18 @@
+{
+  "captured_before_live_utc": "2026-09-08T20:08:09.869540+00:00",
+  "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+  "pyserial": "3.5",
+  "serial_opened": false,
+  "files": {
+    "src/lms200/address_discovery.py": "d246f5f7210935d53a804808de1797d997e3e858dd338b855d5835b7683ee776",
+    "src/lms200/hardware_diagnostic.py": "a5514d128fb21825855a4d1c836c994446de6beaa91174a768d12ca62970279d",
+    "src/lms200/windows_serial_state.py": "ddcbdf71fed2219df407f03e67d279b3be596707136b3a3d0f45521cc256b836",
+    "src/lms200/protocol/crc.py": "7afc79aaf9fa9d6329acc1e5f2a029ea51b62aef32613d223a7c4c824965727a",
+    "src/lms200/protocol/framing.py": "3dd809d48b7b4b444302a57343aea808bc255334588dabe1f5a09ab15b4669c6",
+    "src/lms200/protocol/responses.py": "df95c729e66f108b6ef047a335379149668088bd1d7c2bc2549670b78d369d4a",
+    "src/lms200/protocol/commands.py": "62c3555bccb2b8faadebf1a0dd2480685a335c9aa5d83c042e003215bbc9f2c1",
+    ".venv/Lib/site-packages/serial/serialwin32.py": "17681ea9a650120c71db1aae9b8881301a40d38c47b34bb0da050e3f5bfbbe00",
+    ".venv/Lib/site-packages/serial/serialutil.py": "3c84f8c7c319f161a85d6f8db5bedc4f65255714589bdcbeee6f2daf65a17c0a",
+    ".venv/Lib/site-packages/serial/win32.py": "964eaba1df661e4ab381c8666aa077ca08939260164cd434d0827df39663bd32"
+  }
+}

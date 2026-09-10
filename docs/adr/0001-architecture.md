@@ -96,3 +96,77 @@ unchanged. Each selected backend owns COM7 for its whole run and releases it bef
 the next; this is not a shared physical handle across backends. Only the existing
 native C++ sequence may perform the selected 100°/1° and bounded scan/stop stages,
 with its existing status/ACK/reply gates. Production defaults remain unchanged.
+
+## Fresh diagnostic controls, 2026-09-08
+
+The user's fresh-start request supersedes reliance on historical physical
+confirmations for this investigation, including the previous adapter loopback.
+The existing native Python diagnostic gains bounded passive `capture`, optional
+binary RX persistence before parsing, and configurable receive duration. The
+status packet remains a single read-only request with bounded flush and cleanup.
+Its CLI and passive capture require a current powered/ready RS-232 checklist.
+Existing startup and isolated-loopback gates remain in force.
+
+Host baud may be selected as 9600, 19200 or 38400 for a separately confirmed
+single-rate capture/status/loopback trial. Nondefault rates require an explicit
+flag and separate operator authorization; this is not scanner reconfiguration or
+an automatic sweep. Production transport defaults remain unchanged. Binary files
+are created exclusively to preserve old evidence; partial frames survive empty
+reads. The fresh driver inventory and offline package comparison neither open
+COM7 nor authorize a driver installation. See `docs/FRESH_START_DIAGNOSIS.md`.
+
+## Same-handle Windows DCB audit, 2026-09-08
+
+The user requested fresh actual driver configuration evidence for the Python,
+native C++, and ROS 2 Windows serial owners. Each now checks `GetCommState` on its
+own open handle after configuration and immediately before a write, resolves
+Windows enum values symbolically, and blocks transmission on unavailable or
+mismatched required settings. Python logs cached requested properties separately
+from actual DCB fields. The general Windows SerialTransport applies the same
+gate after explicit host-baud changes, preserving its selectable baud and static
+control-line defaults. Production POSIX/URL transports remain portable.
+
+A new native `--status-only` mode invokes a single status exchange and cannot
+enter the broader retry/variant/start/capture/stop sequence. It is mutually
+exclusive with passive-listen and variant flags. The current operator replies
+confirmed the tested adapter loopback, restored scanner connection/no link/closed
+other owners, and green/completed startup. The three authorized single status
+requests completed sequentially with actual 9600/8-N-1/parity-check-off/no-flow
+readbacks, seven driver-accepted bytes each, and no received bytes. All handles
+closed. No further hardware command is queued. Full evidence and limitations:
+`docs/diagnostics/dcb-verification-20260908/SUMMARY.md`.
+
+## Bounded destination-address discovery, 2026-09-08
+
+The user explicitly requested repeated universal-address status testing followed
+by individual destinations only if all universal attempts are silent, emphasizing
+that incoming raw bytes must be recorded with the listener kept open. A separate
+`lms200.address_discovery` Windows diagnostic adds a dedicated receive thread on
+one exclusive COM7 handle. It saves raw bytes before parsing and checks DCB before
+every whole-buffer write. All sends stop on the first received byte, including
+pre-TX noise; only bounded response capture follows. This addresses concurrent
+read/write capture without altering production transports or prior experiment
+defaults. The maximum sequence is 50 requests to00, then five to each01..7F,
+with200..228ms silent windows/minimum100ms TX spacing. It changes no scanner
+settings and preserves raw partial/noisy replies and strict response-address
+comparison. Current physical confirmations persist for this user-requested test.
+See `docs/ADDRESS_DISCOVERY.md` for exact bounds and driver-versus-wire limits.
+
+## Deliberately invalid status CRC experiment, 2026-09-08
+
+The user explicitly requested twenty valid universal-address status requests,
+followed only if entirely silent by twenty requests reversing just the two CRC
+bytes. This narrow opt-in exception permits deliberately invalid CRC status
+packets in `lms200.crc_comparison`; it does not relax the protocol encoder or add
+invalid packets to address discovery or production. The shared Windows lifecycle
+and single-buffer sender preserve one exclusive handle and dedicated receive
+thread, actual pre-write DCB checks, raw-before-parser capture, and fail-closed
+cleanup. The CRC adapter enforces exact buffers, sequential counts and the
+twenty-silent-baseline gate. Any received byte ends retransmission in either test.
+Current physical confirmations persist; no instrument capture is available.
+
+Application timing and queue status are explicitly separate from physical RS-232
+timing. The new measurement guide provides scanner-end probing, correct signal
+direction and voltage conversion, and explicit gap-reference definitions. No
+electrical pass or scanner-receipt claim is possible from software evidence alone.
+See `docs/CRC_COMPARISON_AND_WIRE_TIMING.md`.

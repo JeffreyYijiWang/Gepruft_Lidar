@@ -1,0 +1,62 @@
+{
+  "builtUtc": "2026-09-08T19:34:47.5661437Z",
+  "compiler": "C:\\msys64\\ucrt64\\bin\\g++.exe",
+  "compilerVersion": "g++.exe (Rev2, Built by MSYS2 project) 14.2.0",
+  "target": "x86_64-w64-mingw32",
+  "options": [
+    "-std=c++17",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-static",
+    "-pthread"
+  ],
+  "sources": [
+    {
+      "file": "main.cpp",
+      "sha256": "DCB7052EC8D5522FA02184BE77B155386B7A4945354317C074FC319FB7C0CB66"
+    },
+    {
+      "file": "protocol.cpp",
+      "sha256": "4F75A165527C4F1946E62B06380FF06A682CEBF59F3473A5B144712025A35112"
+    },
+    {
+      "file": "protocol_tests.cpp",
+      "sha256": "D8BFCB001DB5A4D5D0D549A3850646CD644D14BD93649E2ED5FD63E04C47ACD7"
+    },
+    {
+      "file": "sequence.cpp",
+      "sha256": "168C2F03BC212AC2C793C34073D0E57C144AE5D96AFB401892EBB95CAA71E09C"
+    },
+    {
+      "file": "sequence_tests.cpp",
+      "sha256": "107831BDD44E26903BC3B3736A342DECF9531A6B6F6192730687AC3E0D8C9143"
+    },
+    {
+      "file": "win_serial.cpp",
+      "sha256": "F7E38A17207253A995558808B29A495FFB1756C69EF7A2309F2D9E6A8B698FAD"
+    },
+    {
+      "file": "protocol.hpp",
+      "sha256": "9AAF20DD8BC9EC4DBA3D8313F97C2F62F3DFD56C77C55BEBB49BBAD15868E77A"
+    },
+    {
+      "file": "sequence.hpp",
+      "sha256": "D99F91C42B933373C848033D7215352F4214174E913D7D7C0E0E4EE4EF116EB4"
+    },
+    {
+      "file": "win_serial.hpp",
+      "sha256": "3EE928802F6C6606BE2389CAFE6EC869C487D395635D63175061DF3F6CA66FA7"
+    },
+    {
+      "file": "build.ps1",
+      "sha256": "A494A99306E38D92124BECBF7A25B092FA194E707DD0C1B6B7A629A3800FDE0E"
+    }
+  ],
+  "executable": "C:\\Users\\Jeffr\\OneDrive\\Documents\\GitHub\\Gepruft_Lidar\\tmp\\native-lms200\\lms200-native.exe",
+  "executableSha256": "F9A474817528A06791F5C17C2466E8F888790CB26E55680ED612B66357955950",
+  "offlineChecksPassed": true,
+  "serialPortOpenedDuringBuild": false
+}

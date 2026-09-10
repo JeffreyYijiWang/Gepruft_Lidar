@@ -20,7 +20,10 @@ files = list((repo / 'tools/ros2_status').rglob('*'))
 files += list((repo / '.local/laviria_lms200/include/sicktoolbox').glob('*.hh'))
 files += [repo / '.local/laviria_lms200/lib/libSickLMS.a',
           repo / '.local/ros2_status/lib/lms200_ros2_status/lms200_ros2_status',
-          repo / 'src/lms200/ros2_status_experiment.py']
+          repo / 'src/lms200/ros2_status_experiment.py',
+          repo / 'src/lms200/hardware_diagnostic.py',
+          repo / 'src/lms200/windows_serial_state.py']
+files += list((repo / 'src/lms200/protocol').glob('*.py'))
 records = {}
 for path in files:
     if path.is_file() and path.name != 'build-evidence.json' and '__pycache__' not in path.parts:

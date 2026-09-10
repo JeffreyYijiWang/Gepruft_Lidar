@@ -6,6 +6,7 @@ most ten read-only requests. Loopback requires isolation. Startup capture never 
 
 import argparse
 import json
+import math
 import os
 import signal
 import sys
@@ -14,10 +15,11 @@ import time
 import uuid
 from collections import deque
 from collections.abc import Callable
+from contextlib import ExitStack
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, TextIO
+from typing import Any, BinaryIO, TextIO
 
 import serial
 from serial.tools import list_ports
@@ -25,6 +27,7 @@ from serial.tools import list_ports
 from .protocol.crc import crc16
 from .protocol.framing import Control, Frame, FrameCandidate, Framer
 from .protocol.responses import ProtocolError, decode_status, response
+from .windows_serial_state import verify_windows_serial
 
 STATUS_REQUEST = bytes.fromhex("02 00 01 00 31 15 12")  # QM p9; TL Table 7-31 p52.
 LOOPBACK_PATTERN = bytes.fromhex("55 AA 00 FF 11 13 06 15 02 7E 80 01 FE A5 5A")
@@ -65,6 +68,7 @@ class Journal:
         line = json.dumps(
             {
                 "timestamp": datetime.now(UTC).isoformat(),
+                "monotonic_seconds": time.monotonic_ns() / 1_000_000_000,
                 "run_id": self.run_id,
                 "pid": os.getpid(),
                 "mode": self.mode,
@@ -79,8 +83,11 @@ class Journal:
 
 
 class Capture:
-    def __init__(self, journal: Journal, report: dict[str, Any]) -> None:
+    def __init__(
+        self, journal: Journal, report: dict[str, Any], raw_stream: BinaryIO | None = None
+    ) -> None:
         self.journal, self.report = journal, report
+        self.raw_stream = raw_stream
         self.raw = bytearray()
         self.valid_candidates: deque[dict[str, Any]] = deque()
         self.framer = Framer(self.candidate)
@@ -89,6 +96,7 @@ class Capture:
         self.post_nak = False
         self.status: dict[str, Any] | None = None
         self.startup: dict[str, Any] | None = None
+        self.scanner_response_frames = 0
 
     def candidate(self, candidate: FrameCandidate) -> None:
         raw = candidate.raw
@@ -122,6 +130,7 @@ class Capture:
             detail = self.valid_candidates.popleft()
             try:
                 reply = response(event)
+                self.scanner_response_frames += 1
                 detail["status_byte"] = asdict(reply.status)
                 if reply.command == 0x90:
                     if len(event.payload) != 23 or not reply.data.startswith(b"LMS200;"):
@@ -148,6 +157,9 @@ class Capture:
         if data:
             offset = len(self.raw)
             self.raw.extend(data)
+            if self.raw_stream is not None:
+                self.raw_stream.write(data)
+                self.raw_stream.flush()
             self.journal.emit(
                 "rx", offset=offset, count=len(data), hex=data.hex(" ").upper(), phase=phase
             )
@@ -203,9 +215,28 @@ def run_diagnostic(
     loopback_confirmed: bool = False,
     direct_connection_confirmed: bool = False,
     startup_complete: Callable[[], bool] | None = None,
+    baudrate: int = 9600,
+    timeout_seconds: float | None = None,
+    raw_rx_path: Path | None = None,
+    host_baud_confirmed: bool = False,
 ) -> dict[str, Any]:
-    if mode not in ("listen-startup", "status", "loopback", "direct-test"):
+    if mode not in ("listen-startup", "status", "loopback", "direct-test", "capture"):
         raise ValueError("Unknown diagnostic mode")
+    if baudrate not in (9600, 19200, 38400):
+        raise ValueError("RS-232 diagnostic baud must be 9600, 19200 or 38400")
+    if baudrate != 9600 and (
+        not host_baud_confirmed or mode not in ("status", "loopback", "capture")
+    ):
+        raise ValueError("Nondefault host baud requires a separately confirmed single-rate test")
+    if timeout_seconds is not None and (
+        mode not in ("status", "loopback", "capture")
+        or not math.isfinite(timeout_seconds)
+        or not 0.1 <= timeout_seconds <= 300
+    ):
+        raise ValueError("Capture/status/loopback timeout must be finite and in 0.1..300 seconds")
+    if raw_rx_path is not None and raw_rx_path.resolve() == log_path.resolve():
+        raise ValueError("Raw RX and JSONL log must use different paths")
+    serial_config = {**SERIAL_CONFIG, "baudrate": baudrate}
     # An isolated adapter is required before even opening a loopback handle.
     if mode == "loopback" and not loopback_confirmed:
         raise ValueError(
@@ -219,8 +250,11 @@ def run_diagnostic(
         raise ValueError("Golden status-request CRC does not match")
     log_path.parent.mkdir(parents=True, exist_ok=True)
     report: dict[str, Any] = {
-        "serial_standard": "RS-232",
-        "serial_config": SERIAL_CONFIG,
+        "serial_standard": "RS-232 intended; physical interface requires operator verification",
+        "serial_config": serial_config,
+        "host_baud_confirmed": host_baud_confirmed,
+        "raw_rx_path": str(raw_rx_path.resolve()) if raw_rx_path is not None else None,
+        "capture_completed": False,
         "dtr": False,
         "rts": False,
         "port_opened": False,
@@ -247,22 +281,41 @@ def run_diagnostic(
         "physical_tx_verified": False,
         "tx_evidence_note": "write/flush report driver progress, not electrical pin measurement",
     }
-    with log_path.open("a", encoding="utf-8") as stream:
+    with ExitStack() as stack:
+        raw_stream = None
+        if raw_rx_path is not None:
+            raw_rx_path.parent.mkdir(parents=True, exist_ok=True)
+            # Refuse to replace evidence, before opening the serial device.
+            raw_stream = stack.enter_context(raw_rx_path.open("xb"))
+        stream = stack.enter_context(log_path.open("a", encoding="utf-8"))
         journal = Journal(stream, mode, port)
-        capture = Capture(journal, report)
+        capture = Capture(journal, report, raw_stream)
         device: serial.Serial | None = None
         receive_start: float | None = None
         try:
             journal.emit("opening", **report)
-            device = serial.Serial(port=None, **SERIAL_CONFIG)
+            device = serial.Serial(port=None, **serial_config)
             device.port, device.dtr, device.rts = port, False, False
             device.open()
             report["port_opened"], report["port_closed"] = True, False
             report["initial_state"] = initial_state(device)
             journal.emit("opened", **report["initial_state"])
+            report["dcb_after_configuration"] = verify_windows_serial(
+                device, baudrate, "after_configuration", journal.emit
+            )
             # No explicit reset_input_buffer: Windows pyserial itself purges during open.
             # Startup therefore must begin after this ready event.
             receive_start = time.monotonic()
+            if mode == "capture":
+                seconds = 10.0 if timeout_seconds is None else timeout_seconds
+                journal.emit("listener_ready", tx_bytes=0, timeout_seconds=seconds)
+                if on_ready is not None:
+                    on_ready()
+                while time.monotonic() - receive_start < seconds:
+                    capture.read(device, "passive")
+                report["capture_completed"] = True
+                # Completion of a passive capture is distinct from valid communication.
+                report["success"] = capture.scanner_response_frames > 0
             if mode in ("listen-startup", "direct-test"):
                 journal.emit(
                     "listener_ready",
@@ -346,6 +399,9 @@ def run_diagnostic(
                 capture.tx_boundary = len(capture.raw)
                 request = LOOPBACK_PATTERN if mode == "loopback" else STATUS_REQUEST
                 report["tx_attempted_hex"] = request.hex(" ").upper()
+                report["dcb_pre_tx"] = verify_windows_serial(
+                    device, baudrate, "immediately_before_write", journal.emit
+                )
                 journal.emit("tx_attempt", count=len(request), hex=report["tx_attempted_hex"])
                 report["tx_bytes"] = None  # Unknown if the driver raises after a partial write.
                 written = device.write(request)
@@ -364,15 +420,17 @@ def run_diagnostic(
                 journal.emit("flush_completed", out_waiting=device.out_waiting)
                 receive_start = time.monotonic()
                 status_seconds = DIRECT_STATUS_SECONDS if mode == "direct-test" else STATUS_SECONDS
+                if timeout_seconds is not None:
+                    status_seconds = timeout_seconds
                 deadline = receive_start + status_seconds
                 journal.emit("listening", timeout_seconds=status_seconds)
                 # One fixed post-flush window; repeated ACK/noise cannot extend it.
                 while time.monotonic() < deadline:
                     capture.read(device, "post_tx", framed=mode != "loopback")
-                    if mode == "status" and capture.post_nak:
+                    if mode == "status" and timeout_seconds is None and capture.post_nak:
                         report["timeout_reason"] = "NAK received; no retry"
                         break
-                    if mode == "status" and capture.status is not None:
+                    if mode == "status" and timeout_seconds is None and capture.status is not None:
                         report["success"] = True
                         report["status_response"] = capture.status
                         break
@@ -384,7 +442,7 @@ def run_diagnostic(
                             )
                             break
                 else:
-                    if mode == "direct-test":
+                    if mode in ("status", "direct-test"):
                         report["success"] = capture.status is not None and not capture.post_nak
                         report["status_response"] = capture.status
                     if mode == "loopback":
@@ -436,6 +494,16 @@ def run_diagnostic(
                 report["post_tx_rx_hex"] = capture.raw[capture.tx_boundary :].hex(" ").upper()
             if not report["port_closed"]:
                 report["success"] = False
+            report["receive_evidence"] = {
+                "any_bytes": bool(capture.raw),
+                "crc_valid_telegrams": capture.framer.stats.frames,
+                "scanner_response_frames": capture.scanner_response_frames,
+                "crc_failed_candidates": capture.framer.stats.crc_errors,
+                "invalid_lengths": capture.framer.stats.invalid_lengths,
+                "unframed_bytes": capture.framer.stats.noise_bytes,
+                "incomplete_suffix_bytes": len(capture.framer.buffer),
+                "note": "ACK/NAK-shaped bytes alone, especially amid noise, do not prove a reply",
+            }
             journal.emit("result", **report)
     return report
 
@@ -479,6 +547,9 @@ def run_status_repeat(
             device.open()
             report.update(port_opened=True, port_closed=False)
             journal.emit("opened", **initial_state(device))
+            report["dcb_after_configuration"] = verify_windows_serial(
+                device, 9600, "after_configuration", journal.emit
+            )
             # Record bytes available after open. Windows pyserial purges during open;
             # after that, never explicitly reset RX, flush input, or reopen.
             before = time.monotonic() + 0.1
@@ -496,6 +567,9 @@ def run_status_repeat(
                     "rx_start": len(capture.raw),
                 }
                 report["attempts"].append(attempt)
+                attempt["dcb_pre_tx"] = verify_windows_serial(
+                    device, 9600, "immediately_before_write", journal.emit
+                )
                 journal.emit("tx_attempt", attempt=number, count=7, hex=attempt["tx_hex"])
                 written = device.write(STATUS_REQUEST)
                 attempt["write_return"] = written
@@ -562,13 +636,41 @@ def run_status_repeat(
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(prog="lms200-hardware-diagnostic")
     commands = result.add_subparsers(dest="command", required=True)
-    for name in ("ports", "listen-startup", "status", "loopback", "direct-test", "status-repeat"):
+    for name in (
+        "ports",
+        "listen-startup",
+        "status",
+        "loopback",
+        "direct-test",
+        "status-repeat",
+        "capture",
+    ):
         command = commands.add_parser(name)
         command.add_argument(
             "--log", type=Path, default=Path("docs/diagnostics/hardware-raw.jsonl")
         )
         if name != "ports":
             command.add_argument("--port", required=True)
+        if name in ("status", "loopback", "capture"):
+            command.add_argument("--baud", type=int, choices=(9600, 19200, 38400), default=9600)
+            command.add_argument(
+                "--timeout", type=float, help="Overall receive seconds, 0.1..300; not per read"
+            )
+            command.add_argument(
+                "--raw-rx", type=Path, help="New raw binary RX file; never overwrite"
+            )
+            command.add_argument(
+                "--confirm-host-baud-test",
+                action="store_true",
+                help="Explicit separate test at this host rate; no scanner baud command is sent",
+            )
+        if name in ("status", "capture"):
+            command.add_argument(
+                "--confirm-scanner-interface",
+                action="store_true",
+                help="Confirm verified RS-232 data cable, powered/ready scanner, no loopback link, "
+                "and all other COM-port programs closed",
+            )
         if name == "status-repeat":
             command.add_argument("--attempts", type=int, choices=range(1, 11), default=10)
             command.add_argument("--confirm-repeated-status", action="store_true")
@@ -599,6 +701,14 @@ def parser() -> argparse.ArgumentParser:
 def main() -> None:
     cli = parser()
     args = cli.parse_args()
+    if args.command in ("status", "capture") and not args.confirm_scanner_interface:
+        cli.error("Verify the current powered/ready RS-232 setup; use --confirm-scanner-interface")
+    if getattr(args, "baud", 9600) != 9600 and not args.confirm_host_baud_test:
+        cli.error("Nondefault host baud needs a separately authorized --confirm-host-baud-test")
+    if getattr(args, "timeout", None) is not None and (
+        not math.isfinite(args.timeout) or not 0.1 <= args.timeout <= 300
+    ):
+        cli.error("--timeout must be finite and in 0.1..300 seconds")
     if args.command == "status-repeat":
         if not args.confirm_repeated_status:
             cli.error("Repeated status requests require --confirm-repeated-status")
@@ -705,10 +815,19 @@ def main() -> None:
             loopback_confirmed=getattr(args, "confirm_isolated_loopback", False),
             direct_connection_confirmed=getattr(args, "confirm_direct_connection", False),
             startup_complete=complete,
+            baudrate=getattr(args, "baud", 9600),
+            timeout_seconds=getattr(args, "timeout", None),
+            raw_rx_path=getattr(args, "raw_rx", None),
+            host_baud_confirmed=getattr(args, "confirm_host_baud_test", False),
         )
     finally:
         signal.signal(signal.SIGTERM, previous)
-    if not outcome["success"]:
+    if not outcome["success"] and not (
+        args.command == "capture"
+        and outcome["capture_completed"]
+        and outcome["port_closed"]
+        and outcome["exception"] is None
+    ):
         cli.exit(1)
 
 

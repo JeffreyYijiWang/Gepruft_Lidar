@@ -269,6 +269,93 @@ waits both readers/pre-TX capture without power/startup marker fabrication. The
 original OFF/65 s path remains. 78 focused Python tests, 76 native checks, 642 ROS 2
 checks and build hashes passed. See docs/diagnostics/method-comparison-COM7-20260908T183745Z/SUMMARY.md.
 
+Fresh-start investigation 2026-09-08: user explicitly requires independent current
+verification, including a new isolated loopback; do not use earlier loopback or
+power/wiring reports as current confirmation for this investigation. New native
+Windows inventory verifies Windows11 Home25H2 build26200.9278 AMD64 and COM7's PnP
+parent USB VID06CD/PID0121. Both device states OK/error0. Installed KSPN USB
+17.14.44.557/oem74.inf and Ports17.14.44.551/oem79.inf, INF date2024-08-16, plus
+both installed SYS files, are SHA256-identical to the freshly downloaded official
+Eaton Win10/11 package. No update indicated by that comparison; no installer ran.
+New diagnostic `capture` sends nothing; capture/status/loopback accept bounded
+`--timeout` and a new `--raw-rx` binary file persisted before parsing. Default9600
+remains. Nondefault host19200/38400 needs separate explicit single-rate authorization
+and `--confirm-host-baud-test`; no scanner baud command/sweep or500000. Status and
+capture CLI now require `--confirm-scanner-interface` for current verified RS232,
+powered/ready scanner, no loopback link and other owners closed. Loopback retains
+its scanner-off/disconnected/USB-only/own2-3-link confirmation gate. No new COM7
+open, live RX, power state, cable continuity or bridge-state observation occurred;
+none is inferred. See docs/FRESH_START_DIAGNOSIS.md and diagnostics/fresh-start-20260908/.
+No live run queued. Production Python defaults and historical evidence are preserved.
+
+Fresh DCB audit 2026-09-08 19:38–19:44 UTC: user now reports pins2–3 loopback
+tested/passed, startup complete/green, and confirms loopback removed, scanner
+cable restored, other COM7 apps closed. This supersedes the preceding pending
+fresh-loopback state; do not repeat loopback as a prerequisite. One status per
+Python hardware diagnostic, native C++ --status-only, and ROS2 Windows owner
+was authorized and completed sequentially outside the execution sandbox. Each
+actual same-handle GetCommState after configuration and immediately before TX
+confirmed9600/8/NOPARITY0/ONESTOPBIT0(one stop)/fParity0; hardware/software flow
+off, DTR/RTSdisabled. Handles0x218/0x10C/0x348 respectively. Each wrote exactly
+02 00 01 00 31 15 12 once, count7, flush/drain complete/queue0; RX0 over
+5.015/5.023/6.500s respectively. No ACK/NAK/frame. All handles/relay closed;
+no retry, scanner configuration, baud change, reset, scan, or queued run.
+Driver readback is not electrical measurement or scanner receipt. No framing
+configuration error found. Added fail-closed same-handle DCB logging to active
+diagnostics and general SerialTransport; generic bridge's explicit host-baud
+setter remains and is verified against selected baud. Legacy probe/reset/original
+DLL were inspected but not live-verified here. Python213pass2skip, native90checks,
+ROS2642checks, two synthetic PTY exchanges, source/build hashes passed. Native
+--status-only is exclusive with listen/variant and never invokes retry/start/stop.
+See docs/diagnostics/dcb-verification-20260908/SUMMARY.md. Preserve these logs.
+
+Address discovery requested 2026-09-08: current user request explicitly authorizes
+50 universal00 status attempts, then only if all50are silent five attempts each
+for01..7F. This scoped exception supersedes earlier single/ten-request limits for
+the separate `python -m lms200.address_discovery` only. Same current powered/green,
+restored RS232/no-loopback-link/other-apps-closed setup confirmations apply; no
+physical change requested. One native Windows COM7 handle9600/8-N-1/no-flow;
+checked actualDCB afteropen/prewrite. A dedicated reader completes a read before
+firstTX and persists every rawbyte before parsing, staying active during write,
+drain, waits and transitions. Any byte stops all further sends; finish bounded
+capture, then close. Silent windows200..228ms, minimumTXspacing100ms; no five-second
+per-attempt delay. Only destination byte/CRC of status31changes, never scanner
+address/baud/config/reset/scan commands. Maximum685writes/240s discovery, response
+idle250ms/ACK-follow1s/overall15s. Preserve old diagnostic defaults and evidence.
+See docs/ADDRESS_DISCOVERY.md for commands, parser limits and raw listener evidence.
+
+Address discovery live result 2026-09-08 20:08:37–20:11:17UTC: one exclusive native
+Windows COM7 handle0x2C4, 686 actual DCB checks confirmed9600/8-N-1/no-flow. Reader
+ready beforeTX; one dedicated receive thread stayed active159.881s with10337reads
+and15heartbeats, no error. Universal00:50silent requests in11.675s. Only then
+01..7F:5silent requests each. Total685one-buffer binary status31writes, eachcount7,
+all drained/queue0;4795driver-accepted TXbytes. RX0, noACK/NAK/frame/partial/other.
+Rawfile0bytes agrees with OS/saved/log counts. TXspacing212.553–264.616ms; observed
+postdrainwindows201.400–253.445ms (Windows overshoot of200..228ms targets).
+Reader stopped/COM7closed, exit1 for no B1, no queued run. Sourcehashes/offline
+evidenceaudit passed;233tests passed2skipped plus20final discovery tests. No
+address-setting/baud/config/reset/start/stop command sent. Repetition/destination
+changes did not resolve silence. Actual cable/interface/scanner baud/signal path
+remain unverified; Windows readback/counts do not establish electrical TX or fault.
+See docs/diagnostics/address-discovery-COM7-20260908T200745Z/SUMMARY.md.
+
+CRC comparison requested 2026-09-08: user explicitly authorizes up to20 valid
+universal00 status requests, then only after20silent attempts up to20 requests
+with ONLY the CRC bytes reversed (02 00 01 00 31 12 15). This exception applies
+only to separate `python -m lms200.crc_comparison`, with explicit invalid-CRC flag;
+no invalid-CRC address discovery, whole-message reversal, configuration or scan.
+Current powered/green/restored-RS232/no-jumper/other-owners-closed confirmations
+persist. The operator's reply to the measurement-instrument question was
+"nothing sis attached"; no instrument capture is available. Electrical timing,
+on-wire bytes, scanner-pin activity and physical segment remain unverified.
+Reuse one exclusive COM7/9600/8-N-1/no-flow handle and dedicated raw-before-parser
+reader throughout both phases; GetCommState before every one-buffer write7,
+bounded TX drain without RX purge, minimum100ms spacing, stop all later sends on
+any RX. At most40writes/60s sequence, bounded response capture and close. Existing
+address defaults and evidence are preserved; its exact prior source is archived
+as address_discovery.py.snapshot in the address-discovery evidence directory.
+See docs/CRC_COMPARISON_AND_WIRE_TIMING.md for the separate electrical procedure.
+
 Commands: `python -m pip install -e '.[dev]'`; `ruff format --check .`; `ruff check .`;
 `mypy`; `pytest -q`; `lms200 serve --transport simulator`; `docker compose up --build`.
 Windows verification: `./scripts/verify.ps1`; POSIX: `sh scripts/verify.sh`.

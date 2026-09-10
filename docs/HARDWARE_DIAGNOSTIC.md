@@ -114,7 +114,7 @@ Install the local console entry point with `python -m pip install -e '.[dev]'`, 
 ```powershell
 lms200-hardware-diagnostic ports
 lms200-hardware-diagnostic listen-startup --port COM7
-lms200-hardware-diagnostic status --port COM7
+lms200-hardware-diagnostic status --port COM7 --confirm-scanner-interface
 lms200-hardware-diagnostic loopback --port COM7
 ```
 
@@ -124,7 +124,12 @@ accepts `--log PATH`, defaulting to `docs/diagnostics/hardware-raw.jsonl`. JSONL
 truncated. Every RX chunk, including noise, is retained. Final results include serial state,
 TX attempt and driver-accepted bytes, write return, flush result, full RX, ACK/NAK, frame offsets
 (zero-based, end exclusive), payload lengths, computed/received CRCs, timeout and OS exceptions.
-All commands fix 9600/8-N-1; none accepts baud/configuration/streaming options.
+The initial default remains 9600/8-N-1. The 2026-09-08 fresh-start extension adds
+`capture`, `--timeout`, `--raw-rx`, and separately confirmed host-only `--baud`
+selection to capture/status/loopback. Status and capture CLI execution require
+`--confirm-scanner-interface` after checking the current physical setup. No
+scanner baud/configuration/streaming commands are added. See the
+[fresh investigation and staged commands](FRESH_START_DIAGNOSIS.md).
 
 ### Passive startup capture
 

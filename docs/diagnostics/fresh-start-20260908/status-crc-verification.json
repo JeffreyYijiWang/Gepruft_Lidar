@@ -1,0 +1,32 @@
+{
+  "timestamp_utc": "2026-09-08T19:14:49.653722+00:00",
+  "source": "https://sicktoolbox.sourceforge.net/docs/sick-lms-telegram-listing.pdf",
+  "sections": "Table 7-31 p52; section 9 pp107-108",
+  "method": "offline rolling-word transcription of manufacturer algorithm",
+  "trace": [
+    {
+      "input": "02",
+      "crc": "0002"
+    },
+    {
+      "input": "00",
+      "crc": "0204"
+    },
+    {
+      "input": "01",
+      "crc": "0409"
+    },
+    {
+      "input": "00",
+      "crc": "0912"
+    },
+    {
+      "input": "31",
+      "crc": "1215"
+    }
+  ],
+  "numeric_crc": "1215",
+  "packet_hex": "02 00 01 00 31 15 12",
+  "project_crc_matches": true,
+  "hardware_opened": false
+}

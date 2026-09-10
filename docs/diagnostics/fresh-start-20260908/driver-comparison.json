@@ -1,0 +1,45 @@
+{
+  "TimestampUtc": "2026-09-08T19:11:41.7863548Z",
+  "Source": "https://assets.tripplite.com/drivers/usa-19hs_win11_win10_driver.zip",
+  "ZipSHA256": "B66BB71957994FCDEDC432A8625DCE0BA22408BB16C62A485D69FEA6FCD0BC05",
+  "Inspection": "Read-only MSI database and embedded CAB extraction; installer not executed",
+  "InstallerProductVersion": "1.0.0",
+  "Files": [
+    {
+      "Name": "usa19hx64.sys",
+      "PackagePath": "C:\\Users\\Jeffr\\OneDrive\\Documents\\GitHub\\Gepruft_Lidar\\.local\\fresh-diagnosis-20260908\\cabinet\\_46239891BC1E428FA5AF3EC9180B9207",
+      "InstalledPath": "C:\\Windows\\System32\\drivers\\usa19hx64.sys",
+      "PackageSHA256": "929FE65D6B3FE5A524BF4E6D9ADB601842FA2E3A3E52F58FF34AFC341780CF98",
+      "InstalledSHA256": "929FE65D6B3FE5A524BF4E6D9ADB601842FA2E3A3E52F58FF34AFC341780CF98",
+      "Identical": true,
+      "PackageDriverVer": null
+    },
+    {
+      "Name": "19hp.inf",
+      "PackagePath": "C:\\Users\\Jeffr\\OneDrive\\Documents\\GitHub\\Gepruft_Lidar\\.local\\fresh-diagnosis-20260908\\cabinet\\_72CFC5B2C63C4BE8834A64D3FD72EDF0",
+      "InstalledPath": "C:\\Windows\\INF\\oem79.inf",
+      "PackageSHA256": "321939EE3FDBA3DD8818E1E8C964A99324787803A5B610511C271EB1D0C98979",
+      "InstalledSHA256": "321939EE3FDBA3DD8818E1E8C964A99324787803A5B610511C271EB1D0C98979",
+      "Identical": true,
+      "PackageDriverVer": "DriverVer = 08/16/2024,17.14.44.551"
+    },
+    {
+      "Name": "19h.inf",
+      "PackagePath": "C:\\Users\\Jeffr\\OneDrive\\Documents\\GitHub\\Gepruft_Lidar\\.local\\fresh-diagnosis-20260908\\cabinet\\_9ED2013CFFFB4B5CAD9D3F5FE2BDE2E7",
+      "InstalledPath": "C:\\Windows\\INF\\oem74.inf",
+      "PackageSHA256": "AE261B138FEC70CF2C3B9FD01CE8E778F9EBBCF356572174F3C78C455E6A47DE",
+      "InstalledSHA256": "AE261B138FEC70CF2C3B9FD01CE8E778F9EBBCF356572174F3C78C455E6A47DE",
+      "Identical": true,
+      "PackageDriverVer": "DriverVer = 08/16/2024,17.14.44.557"
+    },
+    {
+      "Name": "usa19hx64p.sys",
+      "PackagePath": "C:\\Users\\Jeffr\\OneDrive\\Documents\\GitHub\\Gepruft_Lidar\\.local\\fresh-diagnosis-20260908\\cabinet\\_A546B5F621E4401D8AE963904211A41D",
+      "InstalledPath": "C:\\Windows\\System32\\drivers\\usa19hx64p.sys",
+      "PackageSHA256": "4B818F653E26DD43396C5F062F9B94E89267AAE4B8E4B4EF7588FCEF776A3A70",
+      "InstalledSHA256": "4B818F653E26DD43396C5F062F9B94E89267AAE4B8E4B4EF7588FCEF776A3A70",
+      "Identical": true,
+      "PackageDriverVer": null
+    }
+  ]
+}

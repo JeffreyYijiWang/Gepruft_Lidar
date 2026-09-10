@@ -1,10 +1,17 @@
 """pyserial in bounded worker calls; no LMS parsing. 8-N-1, no flow control."""
 
 import asyncio
+import json
+import logging
+import os
 import time
 
 import serial
 from serial.tools import list_ports
+
+from ..windows_serial_state import verify_windows_serial
+
+log = logging.getLogger(__name__)
 
 
 def ports() -> list[dict[str, str | int | None]]:
@@ -37,6 +44,19 @@ class SerialTransport:
             rtscts=False,
             dsrdtr=False,
         )
+        try:
+            self._verify("after_configuration")
+        except BaseException:
+            await self.close()
+            raise
+
+    def _verify(self, stage: str) -> None:
+        if os.name == "nt" and "://" not in self.port:
+            verify_windows_serial(self._device(), self.baud, stage, self._emit)
+
+    @staticmethod
+    def _emit(event: str, **evidence: object) -> None:
+        log.info("%s", json.dumps({"event": event, **evidence}))
 
     def _device(self) -> serial.Serial:
         if self.serial is None or not self.serial.is_open:
@@ -50,6 +70,9 @@ class SerialTransport:
 
     def _write(self, data: bytes) -> None:
         device = self._device()
+        self._verify("immediately_before_write")
+        if os.name == "nt" and "://" not in self.port:
+            self._emit("tx_attempt", count=len(data), hex=data.hex(" ").upper())
         if self.baud == 500000:
             # Listing §4.3 p24: >=55us between host bytes, <=6ms. USB/OS timing
             # is hardware-qualified separately; never claim hard real-time guarantees.
@@ -59,7 +82,10 @@ class SerialTransport:
                 device.flush()
                 time.sleep(0.0001)
         else:
-            if device.write(data) != len(data):
+            written = device.write(data)
+            if os.name == "nt" and "://" not in self.port:
+                self._emit("write_returned", count=written)
+            if written != len(data):
                 raise OSError("Incomplete serial write")
             device.flush()
 
@@ -72,6 +98,7 @@ class SerialTransport:
             device = self._device()
             await asyncio.to_thread(setattr, device, "baudrate", baud)
             self.baud = baud
+            self._verify("after_explicit_host_baud_change")
 
     async def close(self) -> None:
         if self.serial is not None:

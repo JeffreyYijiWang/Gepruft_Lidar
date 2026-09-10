@@ -23,6 +23,7 @@ from .hardware_diagnostic import (
     flush_output,
     initial_state,
 )
+from .windows_serial_state import verify_windows_serial
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -165,6 +166,9 @@ def run(log_dir: Path, *, confirmed: bool, already_powered_on: bool = False) -> 
             device.open()
             report["port_closed"] = False
             journal.emit("windows_listener_open", **initial_state(device))
+            report["dcb_after_configuration"] = verify_windows_serial(
+                device, 9600, "after_configuration", journal.emit
+            )
             while time.monotonic() - started < 660:
                 now = time.monotonic()
                 if (log_dir / "cancel.trigger").exists():
@@ -225,6 +229,9 @@ def run(log_dir: Path, *, confirmed: bool, already_powered_on: bool = False) -> 
                         )
                         if packet is not None:
                             capture.tx_boundary = len(capture.raw)
+                            report["dcb_pre_tx"] = verify_windows_serial(
+                                device, 9600, "immediately_before_write", journal.emit
+                            )
                             journal.emit(
                                 "tx_attempt", count=len(packet), hex=packet.hex(" ").upper()
                             )

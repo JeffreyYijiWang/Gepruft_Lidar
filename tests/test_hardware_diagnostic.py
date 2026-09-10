@@ -66,6 +66,7 @@ def install(monkeypatch, device):
         return device
 
     monkeypatch.setattr(hd.serial, "Serial", factory)
+    monkeypatch.setattr(hd, "verify_windows_serial", lambda *args: {"synthetic_test": True})
     monkeypatch.setattr(hd.time, "monotonic", lambda: device.clock)
 
 
@@ -121,6 +122,151 @@ def test_status_sends_once_flushes_then_reads_fragmented_response(tmp_path, monk
     assert result["status_response"]["crc_valid"] and result["port_closed"]
     assert not result["physical_tx_verified"]
     assert not device.rts and not device.dtr
+
+
+@pytest.mark.parametrize("failed_stage", ["after_configuration", "immediately_before_write"])
+def test_dcb_failure_closes_handle_without_transmitting(tmp_path, monkeypatch, failed_stage):
+    device = FakeSerial()
+    install(monkeypatch, device)
+    stages = []
+
+    def verify(device, baud, stage, emit):
+        stages.append(stage)
+        if stage == failed_stage:
+            raise OSError("synthetic GetCommState failure or DCB mismatch")
+        return {"synthetic_test": True}
+
+    monkeypatch.setattr(hd, "verify_windows_serial", verify)
+    result = hd.run_diagnostic("status", "COM_TEST", tmp_path / "blocked.jsonl")
+    assert failed_stage in stages and result["exception"]
+    assert result["port_closed"] and not device.writes and not result["success"]
+
+
+def test_capture_writes_raw_binary_before_parser_and_retains_partial(tmp_path, monkeypatch):
+    partial = STARTUP[:11]
+    wire = b"\x00\xff\r\n" + partial
+    device = FakeSerial([wire[:5], *([b""] * 12), wire[5:]], passive=True)
+    install(monkeypatch, device)
+    binary = tmp_path / "capture.rx.bin"
+    original_feed = hd.Framer.feed
+
+    def feed(framer, data):
+        assert binary.read_bytes().endswith(data)  # Evidence is persisted before decoding.
+        return original_feed(framer, data)
+
+    monkeypatch.setattr(hd.Framer, "feed", feed)
+    result = hd.run_diagnostic(
+        "capture",
+        "COM_TEST",
+        tmp_path / "capture.jsonl",
+        timeout_seconds=1.5,
+        raw_rx_path=binary,
+    )
+    assert binary.read_bytes() == wire
+    assert result["capture_completed"] and result["port_closed"]
+    assert not result["success"] and not device.writes and not device.flushed
+    assert result["trailing_partial_hex"] == partial.hex(" ").upper()
+    assert result["listen_seconds"] >= 1.5
+
+
+@pytest.mark.parametrize(
+    "wire,success", [(b"", False), (hd.STATUS_REQUEST, False), (STARTUP, True)]
+)
+def test_capture_silence_does_not_imply_valid_communication(tmp_path, monkeypatch, wire, success):
+    device = FakeSerial([wire], passive=True)
+    install(monkeypatch, device)
+    result = hd.run_diagnostic("capture", "COM_TEST", tmp_path / "rx.jsonl", timeout_seconds=0.2)
+    assert result["capture_completed"] and result["success"] is success
+    assert not device.writes and result["port_closed"]
+
+
+@pytest.mark.parametrize("baud", [19200, 38400])
+def test_host_baud_override_is_one_fixed_rate_and_one_binary_status(tmp_path, monkeypatch, baud):
+    device = FakeSerial([b"\x06", status_frame()])
+    install(monkeypatch, device)
+    configs = []
+
+    def factory(**kwargs):
+        configs.append(kwargs)
+        return device
+
+    monkeypatch.setattr(hd.serial, "Serial", factory)
+    result = hd.run_diagnostic(
+        "status",
+        "COM_TEST",
+        tmp_path / "status.jsonl",
+        baudrate=baud,
+        host_baud_confirmed=True,
+        timeout_seconds=0.8,
+        raw_rx_path=tmp_path / "status.rx.bin",
+    )
+    assert result["success"] and result["listen_seconds"] >= 0.8
+    assert configs == [{"port": None, **hd.SERIAL_CONFIG, "baudrate": baud}]
+    assert result["serial_config"]["baudrate"] == baud and hd.SERIAL_CONFIG["baudrate"] == 9600
+    assert device.writes == [hd.STATUS_REQUEST] and result["port_closed"]
+
+
+@pytest.mark.parametrize(
+    "options",
+    [
+        {"baudrate": 500000, "host_baud_confirmed": True},
+        {"baudrate": 19200},
+        {"timeout_seconds": float("nan")},
+        {"timeout_seconds": float("inf")},
+        {"timeout_seconds": 0},
+        {"timeout_seconds": 301},
+    ],
+)
+def test_bad_options_never_open_port(tmp_path, monkeypatch, options):
+    def forbidden(**kwargs):
+        pytest.fail("Invalid options must fail before serial construction")
+
+    monkeypatch.setattr(hd.serial, "Serial", forbidden)
+    with pytest.raises(ValueError):
+        hd.run_diagnostic("status", "COM_TEST", tmp_path / "rx.jsonl", **options)
+
+
+def test_binary_output_refuses_overwrite_and_log_alias_before_open(tmp_path, monkeypatch):
+    def forbidden(**kwargs):
+        pytest.fail("Existing evidence must fail before serial construction")
+
+    monkeypatch.setattr(hd.serial, "Serial", forbidden)
+    binary = tmp_path / "old.bin"
+    binary.write_bytes(b"preserve me")
+    with pytest.raises(FileExistsError):
+        hd.run_diagnostic("capture", "COM_TEST", tmp_path / "rx.jsonl", raw_rx_path=binary)
+    with pytest.raises(ValueError, match="different paths"):
+        hd.run_diagnostic("capture", "COM_TEST", binary, raw_rx_path=binary)
+    assert binary.read_bytes() == b"preserve me"
+
+
+@pytest.mark.parametrize("chunks", [[hd.LOOPBACK_PATTERN], [hd.LOOPBACK_PATTERN, b"extra"]])
+def test_binary_loopback_rejects_extra_data_and_keeps_full_capture(tmp_path, monkeypatch, chunks):
+    device = FakeSerial(chunks)
+    install(monkeypatch, device)
+    path = tmp_path / "loopback.rx.bin"
+    result = hd.run_diagnostic(
+        "loopback",
+        "COM_TEST",
+        tmp_path / "loopback.jsonl",
+        loopback_confirmed=True,
+        raw_rx_path=path,
+        timeout_seconds=0.5,
+    )
+    assert result["loopback_passed"] is (len(chunks) == 1)
+    assert device.writes == [hd.LOOPBACK_PATTERN] and result["port_closed"]
+    assert path.read_bytes() == b"".join(chunks)
+
+
+@pytest.mark.parametrize("command", ["status", "capture"])
+def test_new_cli_requires_current_scanner_checklist_before_open(monkeypatch, command):
+    monkeypatch.setattr(hd.sys, "argv", ["diag", command, "--port", "COM_TEST"])
+    monkeypatch.setattr(
+        hd.serial, "Serial", lambda **kwargs: pytest.fail("No physical confirmation")
+    )
+    with pytest.raises(SystemExit) as error:
+        hd.main()
+    assert error.value.code == 2
 
 
 @pytest.mark.parametrize("address", [0x80, 0x81])

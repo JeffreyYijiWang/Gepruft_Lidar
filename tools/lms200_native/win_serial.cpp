@@ -37,6 +37,15 @@ std::string nullable_number(bool available, DWORD value) {
     return available ? std::to_string(value) : "null";
 }
 
+bool required_dcb(const DCB& value) {
+    return value.BaudRate == CBR_9600 && value.ByteSize == 8 &&
+        value.Parity == NOPARITY && value.StopBits == ONESTOPBIT &&
+        value.fBinary && !value.fParity && !value.fOutxCtsFlow && !value.fOutxDsrFlow &&
+        value.fDtrControl == DTR_CONTROL_DISABLE && !value.fDsrSensitivity &&
+        !value.fOutX && !value.fInX && !value.fErrorChar && !value.fNull &&
+        value.fRtsControl == RTS_CONTROL_DISABLE && !value.fAbortOnError;
+}
+
 struct SerialObservation {
     bool status_available = false;
     DWORD status_error = 0;
@@ -457,6 +466,44 @@ void WinSerial::open() {
 
 std::string WinSerial::settings_json() const { return impl_->settings; }
 
+std::string WinSerial::verify_settings_json(const char* stage) {
+    if (!is_open()) throw std::logic_error("GetCommState requires this session's open handle");
+    DCB actual{};
+    actual.DCBlength = sizeof(actual);
+    if (!GetCommState(impl_->port, &actual)) {
+        const auto code = GetLastError();
+        impl_->emit("{\"event\":\"windows_dcb_readback\",\"confirmed\":false,\"api\":\"GetCommState\",\"winerror\":" +
+                    std::to_string(code) + "}");
+        throw windows_error("GetCommState before transmission", code);
+    }
+    const bool matches = required_dcb(actual);
+    const char* parity = actual.Parity == NOPARITY ? "NOPARITY" :
+        actual.Parity == ODDPARITY ? "ODDPARITY" : actual.Parity == EVENPARITY ? "EVENPARITY" :
+        actual.Parity == MARKPARITY ? "MARKPARITY" : actual.Parity == SPACEPARITY ? "SPACEPARITY" : "UNKNOWN";
+    const char* stops = actual.StopBits == ONESTOPBIT ? "ONESTOPBIT" :
+        actual.StopBits == ONE5STOPBITS ? "ONE5STOPBITS" : actual.StopBits == TWOSTOPBITS ? "TWOSTOPBITS" : "UNKNOWN";
+    std::ostringstream out;
+    out << "{\"event\":\"windows_dcb_readback\",\"api\":\"GetCommState\",\"stage\":\"" << stage
+        << "\",\"handle\":" << reinterpret_cast<std::uintptr_t>(impl_->port)
+        << ",\"confirmed\":" << (matches ? "true" : "false")
+        << ",\"requested\":{\"BaudRate\":9600,\"ByteSize\":8,\"Parity\":\"NOPARITY\",\"StopBits\":\"ONESTOPBIT\",\"fParity\":0}"
+        << ",\"BaudRate\":" << actual.BaudRate << ",\"ByteSize\":" << unsigned(actual.ByteSize)
+        << ",\"Parity\":" << unsigned(actual.Parity) << ",\"Parity_symbol\":\"" << parity
+        << "\",\"StopBits\":" << unsigned(actual.StopBits) << ",\"StopBits_symbol\":\"" << stops
+        << "\",\"stop_bit_count\":" << (actual.StopBits == ONESTOPBIT ? "1" : actual.StopBits == ONE5STOPBITS ? "1.5" : actual.StopBits == TWOSTOPBITS ? "2" : "null")
+        << ",\"fParity\":" << actual.fParity << ",\"fBinary\":" << actual.fBinary
+        << ",\"fOutxCtsFlow\":" << actual.fOutxCtsFlow << ",\"fOutxDsrFlow\":" << actual.fOutxDsrFlow
+        << ",\"fDsrSensitivity\":" << actual.fDsrSensitivity << ",\"fDtrControl\":" << actual.fDtrControl
+        << ",\"fRtsControl\":" << actual.fRtsControl << ",\"fOutX\":" << actual.fOutX
+        << ",\"fInX\":" << actual.fInX << ",\"fTXContinueOnXoff\":" << actual.fTXContinueOnXoff
+        << ",\"fNull\":" << actual.fNull << ",\"fErrorChar\":" << actual.fErrorChar
+        << ",\"fAbortOnError\":" << actual.fAbortOnError << '}';
+    const auto evidence = out.str();
+    impl_->emit(evidence);
+    if (!matches) throw std::runtime_error("DCB mismatch; transmission blocked: " + evidence);
+    return evidence;
+}
+
 void WinSerial::start_reader(RxCallback receive, NoteCallback note) {
     if (!is_open()) throw std::logic_error("COM7 is not open");
     if (impl_->reader.joinable()) throw std::logic_error("Serial reader already exists");
@@ -502,6 +549,7 @@ WriteResult WinSerial::write(const Bytes& bytes, DWORD timeout_ms, bool allow_fa
     operation.hEvent = ready.get();
     WriteResult result;
     result.requested = static_cast<DWORD>(bytes.size());
+    verify_settings_json("immediately_before_WriteFile");
     // Exactly one WriteFile: no partial-write retries and no byte-at-a-time delays.
     const BOOL immediate = WriteFile(impl_->port, bytes.data(), result.requested,
                                     nullptr, &operation);
@@ -606,6 +654,28 @@ int run_serial_observation_tests() {
         if (!condition) throw std::runtime_error(std::string("Serial observation self-test: ") + label);
         ++checks;
     };
+    DCB valid{};
+    valid.DCBlength = sizeof(valid);
+    valid.BaudRate = CBR_9600;
+    valid.ByteSize = 8;
+    valid.Parity = NOPARITY;
+    valid.StopBits = ONESTOPBIT;
+    valid.fBinary = TRUE;
+    require(required_dcb(valid), "synthetic 9600/8-N-1/no-flow DCB accepted");
+    require(ONESTOPBIT == 0 && NOPARITY == 0, "SDK enums are not literal stop-bit counts");
+    const std::array<std::function<void(DCB&)>, 12> corruptions{{
+        [](DCB& d) { d.BaudRate = CBR_19200; }, [](DCB& d) { d.ByteSize = 7; },
+        [](DCB& d) { d.Parity = EVENPARITY; }, [](DCB& d) { d.StopBits = ONE5STOPBITS; },
+        [](DCB& d) { d.StopBits = TWOSTOPBITS; }, [](DCB& d) { d.fParity = TRUE; },
+        [](DCB& d) { d.fOutxCtsFlow = TRUE; }, [](DCB& d) { d.fOutxDsrFlow = TRUE; },
+        [](DCB& d) { d.fDsrSensitivity = TRUE; }, [](DCB& d) { d.fOutX = TRUE; },
+        [](DCB& d) { d.fInX = TRUE; }, [](DCB& d) { d.fRtsControl = RTS_CONTROL_HANDSHAKE; }
+    }};
+    for (const auto& corrupt : corruptions) {
+        auto invalid = valid;
+        corrupt(invalid);
+        require(!required_dcb(invalid), "synthetic mismatched DCB blocks WriteFile gate");
+    }
     unsigned modem_calls = 0;
     const StatusQuery denied = [](DWORD& errors, COMSTAT& status, DWORD& error) {
         // Deliberately supply garbage outputs: failed queries have no values,

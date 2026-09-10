@@ -343,10 +343,11 @@ private:
 std::string result_json(const SequenceResult& result, bool opened, bool setup_complete, bool closed,
                         const std::string& settings, const std::string& evidence,
                         const std::string& led, bool scans, bool listen_only,
-                        bool passive_complete, bool reader_healthy, const std::string& reader_error) {
+                        bool passive_complete, bool reader_healthy, const std::string& reader_error,
+                        bool status_only) {
     std::ostringstream out;
     out << "{\"state\":\"finished\",\"utc\":" << quote(utc())
-        << ",\"run_mode\":" << quote(listen_only ? "listen_only" : "status_variant_start_capture_stop")
+        << ",\"run_mode\":" << quote(status_only ? "single_status" : listen_only ? "listen_only" : "status_variant_start_capture_stop")
         << ",\"passive_listen_complete\":" << boolean(passive_complete)
         << ",\"reader_healthy_at_close\":" << boolean(reader_healthy)
         << ",\"reader_error\":" << quote(reader_error)
@@ -378,6 +379,7 @@ std::string result_json(const SequenceResult& result, bool opened, bool setup_co
 int main(int argc, char** argv) {
     try {
         bool run = false, confirmed = false, variant = false, self_test = false, listen_only = false;
+        bool status_only = false;
         std::string output, led;
         for (int i = 1; i < argc; ++i) {
             const std::string arg = argv[i];
@@ -386,15 +388,16 @@ int main(int argc, char** argv) {
             else if (arg == "--set-100deg-1deg") variant = true;
             else if (arg == "--self-test") self_test = true;
             else if (arg == "--listen-only") listen_only = true;
+            else if (arg == "--status-only") status_only = true;
             else if ((arg == "--output" || arg == "--led-observation") && i + 1 < argc) {
                 if (arg == "--output") output = argv[++i]; else led = argv[++i];
             } else if (arg == "--help") {
-                std::cout << "lms200-native [--self-test] | --run --confirm-hardware [--set-100deg-1deg | --listen-only] [--output NEW_DIRECTORY] [--led-observation TEXT]\n";
+                std::cout << "lms200-native [--self-test] | --run --confirm-hardware [--set-100deg-1deg | --listen-only | --status-only] [--output NEW_DIRECTORY] [--led-observation TEXT]\n";
                 return 0;
             } else throw std::runtime_error("Unknown or incomplete argument: " + arg);
         }
         if (self_test) {
-            if (run || confirmed || variant || listen_only || !output.empty() || !led.empty())
+            if (run || confirmed || variant || listen_only || status_only || !output.empty() || !led.empty())
                 throw std::runtime_error("--self-test must be used alone");
             const auto protocol = run_protocol_tests();
             const auto sequence = run_sequence_tests();
@@ -404,6 +407,12 @@ int main(int argc, char** argv) {
             return 0;
         }
         if (listen_only && variant) throw std::runtime_error("--listen-only cannot be combined with a settings change");
+        if (status_only && (listen_only || variant))
+            throw std::runtime_error("--status-only cannot be combined with listen/variant");
+        if (!run && status_only) {
+            std::cout << "OFFLINE PLAN: COM7, verify DCB after open and before one binary status; no retry/start/stop. Live requires --run --confirm-hardware.\n";
+            return 0;
+        }
         if (!run && listen_only) {
             std::cout << "OFFLINE PLAN: COM7 9600/8-N-1, ten-second passive listener, no TX commands. Live requires --run --confirm-hardware.\n";
             return 0;
@@ -427,12 +436,13 @@ int main(int argc, char** argv) {
         result.variant_requested = variant;
         bool opened = false, closed = false, passive_complete = false;
         log.event("{\"event\":\"run_begin\",\"native_api\":\"Win32\",\"variant_requested\":" + std::string(boolean(variant)) +
-                  ",\"run_mode\":" + quote(listen_only ? "listen_only" : "status_variant_start_capture_stop") +
+                  ",\"run_mode\":" + quote(status_only ? "single_status" : listen_only ? "listen_only" : "status_variant_start_capture_stop") +
                   ",\"hardware_confirmation_supplied\":true,\"output_directory\":" + quote(log.root.string()) + "}");
         if (!led.empty()) log.event("{\"event\":\"operator_led_observation\",\"text\":" + quote(led) + ",\"command_proof\":false}");
         try {
             port.open(); opened = true;
             log.event("{\"event\":\"port_opened\",\"settings\":" + port.settings_json() + "}");
+            log.event(port.verify_settings_json("after_configuration"));
             port.start_reader([&](const Bytes& bytes) { session.receive(bytes); },
                               [&](const std::string& object) { session.serial_note(object); });
             log.event("{\"event\":\"reader_armed_before_tx\",\"pre_tx_listen_ms\":" + std::string(listen_only ? "10000" : "200") + "}");
@@ -443,7 +453,13 @@ int main(int argc, char** argv) {
                     "Passive listening interrupted or actual receive/log failure: " + port.reader_error();
             } else {
                 std::this_thread::sleep_for(200ms);
-                result = run_sequence(session, variant);
+                if (status_only) {
+                    const auto exchange = session.exchange(Command::Status);
+                    result.stage = "single_status";
+                    result.status_confirmed = exchange.success;
+                    result.reason = exchange.reason;
+                    result.original = exchange.status;
+                } else result = run_sequence(session, variant);
             }
         } catch (const std::exception& error) {
             result.reason = error.what();
@@ -457,14 +473,14 @@ int main(int argc, char** argv) {
         try { session.finish(); } // Terminal-only classification; never satisfies a handshake.
         catch (const std::exception& error) { result.reason += "; terminal classification/log: " + std::string(error.what()); }
         const auto report = result_json(result, port.ever_opened(), opened, closed, port.settings_json(), session.evidence_json(), led,
-            session.has_valid_scans(), listen_only, passive_complete, port.reader_ok(), port.reader_error());
+            session.has_valid_scans(), listen_only, passive_complete, port.reader_ok(), port.reader_error(), status_only);
         log.result(report);
         try { log.event("{\"event\":\"final_result\",\"report\":" + report + "}"); }
         catch (...) { std::cerr << "Final event log unavailable; separate result.json: " << report << '\n'; }
         SetConsoleCtrlHandler(console_control, FALSE);
         std::cout << "Evidence: " << log.root.string() << "\n";
         const bool evidence_complete = closed && port.reader_ok() && !log.failed.load();
-        return evidence_complete && (listen_only ? passive_complete : result.sequence_complete && session.has_valid_scans()) ? 0 : 3;
+        return evidence_complete && (status_only ? result.status_confirmed : listen_only ? passive_complete : result.sequence_complete && session.has_valid_scans()) ? 0 : 3;
     } catch (const std::exception& error) {
         std::cerr << "ERROR: " << error.what() << '\n';
         return 2;
